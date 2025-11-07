@@ -1,12 +1,15 @@
-class Person:
-    __type = "Person"
+class Cat:
+    def meow(self):
+        return "Meow!"
 
+c = Cat()
+print(c.meow())
+# -----------------------------------------------------------
+
+class Math:
     @staticmethod
-    def print_type():
-        print(Person.__type)
+    def add(a, b):
+        return a + b
 
+print(Math.add(3, 4))  # 7
 
-Person.print_type()  # Person - обращение к статическому методу через имя класса
-
-tom = Person()
-tom.print_type()  # Person - обращение к статическому методу через имя объекта
