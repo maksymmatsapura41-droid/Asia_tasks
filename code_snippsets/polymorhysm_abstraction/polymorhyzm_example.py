@@ -25,7 +25,7 @@ class Triangle:
     def half_of_perimeter(self):
         return (self.a + self.b + self.c) / 2
 
-    def area(self):
+    def area_for_triangle(self):
         p = self.half_of_perimeter()
         return math.sqrt(p * (p - self.a) * (p - self.b) * (p - self.c))
 

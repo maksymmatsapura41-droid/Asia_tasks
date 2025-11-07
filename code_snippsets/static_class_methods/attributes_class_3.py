@@ -1,7 +1,7 @@
 class Person:
-    default_name = "Undefined"
+    default_name = []
 
-    def __init__(self, name):
+    def __init__(self, name="Undefined"):
         if name:
             self.name = name
         else:
