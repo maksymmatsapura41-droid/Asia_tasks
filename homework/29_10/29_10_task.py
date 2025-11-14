@@ -33,13 +33,13 @@ from abc import ABC, abstractmethod
 from random import randint
 
 class Server(ABC):
-    @abstractmethod
     def start(self):
-        pass
-    
-    @abstractmethod
+        print(f'Starting server {self.name}...')
+        self._status = "running"
+
     def stop(self):
-        pass
+        print(f'Stopping server {self.name}...')
+        self._status = "stopped"
     
     @abstractmethod
     def status(self):
@@ -48,7 +48,8 @@ class Server(ABC):
     @classmethod
     def dhcp_service(cls):
         ip = str(randint(1, 254))
-        return ip
+        # return cls(ip) # ?
+        return ip # ?
 
 class WebServer(Server):
     def __init__(self, name, ip=None, load=0):
@@ -57,12 +58,6 @@ class WebServer(Server):
         self.load = load
         self.processes = {}
         self._status = 'stopped'
-
-    def start(self):
-        self._status = "running"
-
-    def stop(self):
-        self._status = "stopped"
 
     def status(self):
         return self._status
@@ -217,12 +212,6 @@ class DatabaseServer(Server):
     def __exit__(self, exc_type, exc_value, traceback):
         print('Closing connection')
     
-    def start(self):
-        self._status = "running"
-
-    def stop(self):
-        self._status = "stopped"
-
     def status(self):
         return self._status        
 
@@ -230,22 +219,19 @@ class DatabaseServer(Server):
         return hash((self.name, self.ip))
 
 def manage_server(server: Server, action = None):
-    if action == 'start':
-        server.start()
-        print(f"{server.name} status: {server.status()}")
-    elif action == 'stop':
-        server.stop()
-        print(f"{server.name} status: {server.status()}")
-    else: 
-        print('Action must be `start` or `stop`')
-
+    actions = {'start': server.start, 'stop': server.stop}
+    if action not in actions:
+        raise ValueError('Action must be `start` or `stop`')
+    else:
+        actions[action]()
+        
 
 web = WebServer("Web1", "192.168.1.10", load=50)
 web1 = WebServer("Web2", "192.168.1.11", load=50)
 db = DatabaseServer("DB1", "192.168.1.20", load=70)
         
 manage_server(web, 'start')
-manage_server(web1, 'start')
+manage_server(web1, 'stop')
 manage_server(db, 'start')
 
 # Testing
