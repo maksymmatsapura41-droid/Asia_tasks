@@ -45,11 +45,10 @@ class Server(ABC):
     def status(self):
         pass
 
-    @classmethod
-    def dhcp_service(cls):
+    @staticmethod
+    def dhcp_service():
         ip = str(randint(1, 254))
-        # return cls(ip) # ?
-        return ip # ?
+        return ip
 
 class WebServer(Server):
     def __init__(self, name, ip=None, load=0):
@@ -120,17 +119,16 @@ class WebServer(Server):
     def __and__(self, other):
         if not isinstance(other, WebServer):
             return NotImplemented
-        else:
-            if self.status() == 'running' and other.status() == 'running':
-                return WebServer(f"{self.name}&{other.name}", '192.168.1.' + Server.dhcp_service(), (self.load + other.load) / 2)
-            else: return None
+        if self.status() == 'running' and other.status() == 'running':
+            return WebServer(f"{self.name}&{other.name}", '192.168.1.' + Server.dhcp_service(), (self.load + other.load) / 2)
+        return None
 
     def __or__(self, other):
         if not isinstance(other, WebServer):
             return NotImplemented        
         if self.status() == 'running' or other.status() == 'running':
             return WebServer(f"{self.name}|{other.name}", '192.168.1.' + Server.dhcp_service(), self.load + other.load)
-        else: return None
+        return None
 
     def __hash__(self):
         return hash((self.name, self.ip))
@@ -182,17 +180,16 @@ class DatabaseServer(Server):
     def __and__(self, other):
         if not isinstance(other, DatabaseServer):
             return NotImplemented
-        else:
-            if self.status() == 'running' and other.status() == 'running':
-                return DatabaseServer(f"{self.name}&{other.name}", self.ip, (self.load + other.load) / 2)
-            else: return None
+        if self.status() == 'running' and other.status() == 'running':
+            return DatabaseServer(f"{self.name}&{other.name}", self.ip, (self.load + other.load) / 2)
+        return None
 
     def __or__(self, other):
         if not isinstance(other, DatabaseServer):
             return NotImplemented        
         if self.status() == 'running' or other.status() == 'running':
             return DatabaseServer(f"{self.name}|{other.name}", self.ip, self.load + other.load)
-        else: return None
+        raise MyCustomExeption('Type not match')
 
     def __len__(self):
         return len(self.name)
@@ -222,9 +219,10 @@ def manage_server(server: Server, action = None):
     actions = {'start': server.start, 'stop': server.stop}
     if action not in actions:
         raise ValueError('Action must be `start` or `stop`')
-    else:
-        actions[action]()
-        
+    actions[action]()
+
+class MyCustomExeption(Exception):
+    pass
 
 web = WebServer("Web1", "192.168.1.10", load=50)
 web1 = WebServer("Web2", "192.168.1.11", load=50)
