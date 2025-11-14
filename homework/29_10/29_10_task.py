@@ -45,13 +45,9 @@ class Server(ABC):
     def status(self):
         pass
 
-    def __get_ip__(self):
-        return self.ip
-    
-    @staticmethod
-    def __dhcp__():
+    @classmethod
+    def dhcp_service(cls):
         ip = str(randint(1, 254))
-        print(ip)
         return ip
 
 class WebServer(Server):
@@ -104,7 +100,7 @@ class WebServer(Server):
         if not isinstance(other, Server):
             return NotImplemented
         return (WebServer(f"{self.name} + {other.name}", 
-                        '192.168.1.' + Server.__dhcp__(),
+                        '192.168.1.' + Server.dhcp_service(),
                         self.load + other.load)
                 )
 
@@ -123,7 +119,7 @@ class WebServer(Server):
     def __enter__(self):
         print('Opening connection')
     
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         print('Closing connection')
 
     def __and__(self, other):
@@ -131,15 +127,15 @@ class WebServer(Server):
             return NotImplemented
         else:
             if self.status() == 'running' and other.status() == 'running':
-                return WebServer(f"{self.name}&{other.name}", '192.168.1.' + Server.__dhcp__(), (self.load + other.load) / 2)
-            else: return 'Infrastructure is DEGRADED' # what (type) should we return in else case?
+                return WebServer(f"{self.name}&{other.name}", '192.168.1.' + Server.dhcp_service(), (self.load + other.load) / 2)
+            else: return None
 
     def __or__(self, other):
         if not isinstance(other, WebServer):
             return NotImplemented        
         if self.status() == 'running' or other.status() == 'running':
-            return WebServer(f"{self.name}|{other.name}", '192.168.1.' + Server.__dhcp__(), self.load + other.load)
-        else: return 'Infrastructure is DEGRADED'
+            return WebServer(f"{self.name}|{other.name}", '192.168.1.' + Server.dhcp_service(), self.load + other.load)
+        else: return None
 
     def __hash__(self):
         return hash((self.name, self.ip))
@@ -184,7 +180,7 @@ class DatabaseServer(Server):
         if not isinstance(other, Server):
             return NotImplemented
         return (DatabaseServer(f"{self.name} + {other.name}", 
-                        '192.168.1.' + Server.__dhcp__(),
+                        '192.168.1.' + Server.dhcp_service(),
                         self.load + other.load)
                 )
 
@@ -194,14 +190,14 @@ class DatabaseServer(Server):
         else:
             if self.status() == 'running' and other.status() == 'running':
                 return DatabaseServer(f"{self.name}&{other.name}", self.ip, (self.load + other.load) / 2)
-            else: return 'Infrastructure is DEGRADED' # what (type) should we return in else case?
+            else: return None
 
     def __or__(self, other):
         if not isinstance(other, DatabaseServer):
             return NotImplemented        
         if self.status() == 'running' or other.status() == 'running':
             return DatabaseServer(f"{self.name}|{other.name}", self.ip, self.load + other.load)
-        else: return 'Infrastructure is DEGRADED'
+        else: return None
 
     def __len__(self):
         return len(self.name)
