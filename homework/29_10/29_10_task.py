@@ -36,6 +36,13 @@ class MyCustomExeption(Exception):
     pass
 
 class Server(ABC):
+    def __init__(self, name, ip=None, load=0):
+        self.name = name
+        self.ip = ip
+        self.load = load
+        self.processes = {}
+        self._status = 'stopped'
+
     def start(self):
         print(f'Starting server {self.name}...')
         self._status = "running"
@@ -103,13 +110,6 @@ class Server(ABC):
         return hash((self.name, self.ip))        
 
 class WebServer(Server):
-    def __init__(self, name, ip=None, load=0):
-        self.name = name
-        self.ip = ip
-        self.load = load
-        self.processes = {}
-        self._status = 'stopped'
-    
     def __add__(self, other):
         if not isinstance(other, Server):
             return NotImplemented
@@ -133,12 +133,6 @@ class WebServer(Server):
         return None
 
 class DatabaseServer(Server):
-    def __init__(self, name, ip, load=0):
-        self.name = name
-        self.ip = ip
-        self.load = load
-        self.processes = {}
-    
     def __add__(self, other):
         if not isinstance(other, Server):
             return NotImplemented
