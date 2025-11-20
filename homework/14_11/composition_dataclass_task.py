@@ -117,7 +117,7 @@ class Registry:
         return total_size
 
     def list_all(self):
-        return [f'{key} | {value.list_all()}' for key, value in self.records.items()] # how to flatted the list {value.list_all()} ?
+        return [f'{key} | {value.list_all()}' for key, value in self.records.items()] # how to flatten the list {value.list_all()} ?
 
 '''
 4. Тестовый сценарий
