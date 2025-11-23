@@ -1,0 +1,5 @@
+PointClass = type('Point', (), {'x1':5, 'y1':5, 'method': classmethod(lambda cls: print(cls.x1 + cls.y1))})
+point_1 = PointClass()
+print(dir(PointClass))
+# print(PointClass.method())
+# print(point_1.method())
