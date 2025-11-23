@@ -1,15 +1,13 @@
-class Baker:
-    def bake_bread(self):
-        print("Baking bread...")
+class ReportManager:
+    def __init__(self, data):
+        self.data = data
 
-    def manage_inventory(self):
-        print("Checking flour and yeast...")
+    def calculate_stats(self):
+        return sum(self.data)/len(self.data)
 
-    def order_supplies(self):
-        print("Ordering more ingredients...")
+    def save_to_file(self, filename):
+        with open(filename, 'w') as f:
+            f.write(str(self.data))
 
-    def sell_bread(self):
-        print("Selling bread to customers...")
-
-    def clean_bakery(self):
-        print("Cleaning the bakery...")
+    def send_email(self, email):
+        print(f"Sending report to {email}")
