@@ -21,29 +21,30 @@ from dataclasses import dataclass, field
 class Student:
     name: str
     age: int
-    grades: dict = field(default_factory=dict)
+    grades: dict[str, list[int]] = field(default_factory=dict)
 
     def add_grade(self, subject: str, grade: int):
         if grade not in range(1, 6):
             raise InvalidGradeError(f'Available grade range is 1 to 5')
         self.grades.setdefault(subject, []).append(grade)
-        # print(self.grades)
     
     def average_grade(self, subject: str = None):
-        if subject and subject in self.grades.keys():
-            sbj_grades = self.grades[subject]
-            return (sum(sbj_grades) / len(sbj_grades), len(sbj_grades))
+        if subject:
+            if subject in self.grades.keys():
+                sbj_grades = self.grades[subject]
+                if len(sbj_grades) > 0:
+                    return (sum(sbj_grades) / len(sbj_grades), len(sbj_grades))
         
-        total_sum = 0
-        total_num = 0
-        for item in self.grades.values():
-            total_sum += sum(item)
-            total_num += len(item)
-        return ((total_sum / total_num), total_num)
+        else:
+            total_sum = sum(sum(gr) for gr in self.grades.values())
+            total_num = sum(len(gr) for gr in self.grades.values())
+            if total_num > 0:
+                return ((total_sum / total_num), total_num)
+        return (None, None)
     
     @property
     def subjects(self):
-        return set(sbj for sbj in self.grades.keys())
+        return set(self.grades)
 
 std1 = Student('Bob', 18)
 std1.add_grade('Math', 3)
@@ -62,6 +63,8 @@ std2.add_grade('Literature', 4)
 std2.add_grade('Biology', 1)
 print('Student 2 Subjects:', std2.subjects)
 print('Student 2 Average Grade:', std2.average_grade()[0])
+std3 = Student('Alice', 18)
+print('Student 3 Average Grade:', std3.average_grade())
 
 '''
 2. Класс Group
@@ -99,7 +102,8 @@ class Group:
         return [person.name for person in self.students]
     
     def top_student(self, subject: str = None):
-        top_average_grade = 1
+        top_average_grade = 0
+        # нужно с 0, если 1 студент в групе с балом 1
         top_student = None
         
         for person in self.students:
@@ -116,10 +120,11 @@ class Group:
 group1 = Group()
 group1.add_student(std1)
 group1.add_student(std2)
-print('Group 1 Students:', group1.all_students())
+group1.add_student(std3)
+# print('Group 1 Students:', group1.all_students())
 # group1.remove_student('Bob')
 # print(group1.all_students())
-print(group1.top_student('Literature')) # fails if not all students have the same subjects
+# print(group1.top_student('Literature')) # fails if not all students have the same subjects
 
 '''
 3. Класс School
@@ -148,7 +153,7 @@ class School:
         return self.groups[name]
     
     def all_groups(self):
-        return self.groups.keys()
+        return self.groups
 
     # среднее_всех_оценок = sum(среднее_студента × количество_оценок) / sum(количество_оценок)
     def school_average(self, subject: str = None):
@@ -157,14 +162,17 @@ class School:
         for group in self.groups.values():
             for student in group.students:
                 average, number_of_marks = student.average_grade(subject)
-                grade_summary += average * number_of_marks
-                total_marks += number_of_marks
-        print(grade_summary, total_marks)
-        return round(grade_summary / total_marks, 2)
+                if not None in (average, number_of_marks):
+                    grade_summary += average * number_of_marks
+                    total_marks += number_of_marks
+        if total_marks > 0:
+            print(grade_summary, total_marks)
+            return round(grade_summary / total_marks, 2)
 
 school40 = School()
 school40.add_group('Group 1', group1)
 # print(school40.get_group('Group 1'))
 print(school40.all_groups())
-print(school40.school_average('Math'))
-print(school40.school_average())
+# print(school40.school_average('Math'))
+# print(school40.school_average())
+print('Physics', school40.school_average('Physics'))

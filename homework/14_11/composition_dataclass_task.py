@@ -62,28 +62,18 @@ class Repository:
         self.records.append(image)
     
     def remove(self, name: str, tag: str):
-        for item in self.records:
-            if item.name == name and item.tag == tag:
-                self.records.remove(item)
+        self.records = [img for img in self.records if not (img.name == name and img.tag == tag)]
+    # Плохая практика - удалять элементы из списка, по которому ты итерируешься.
+    # Лучше не изменять атрибут напрямую во время итерации, а создавать новый список, а потом присвоить его атрибуту.
     
     def find(self, name: str):
         return [item for item in self.records if item.name == name]
     
     def cleanup(self, max_age_days: int):
-        to_remove = []
-        for item in self.records:
-            print(item.age_days(), max_age_days)
-            if item.age_days() > max_age_days:
-                to_remove.append(item)
-                
-        for item in to_remove:
-            self.records.remove(item)
+        self.records = [img for img in self.records if img.age_days() <= max_age_days]        
     
     def total_size(self):
-        total_size = 0
-        for item in self.records:
-            total_size += item.size_mb
-        return total_size
+        return sum(img.size_mb for img in self.records)
     
     def list_all(self):
         return [f'{item.name}:{item.tag} | {item.size_mb} MB | created: {item.created_at}' for item in self.records]
@@ -111,10 +101,7 @@ class Registry:
         return self.records.get(name)
 
     def total_size(self):
-        total_size = 0
-        for item in self.records.values():
-            total_size += item.total_size()
-        return total_size
+        return sum(item.total_size() for item in self.records.values())    
 
     def list_all(self):
         return [f'{key} | {value.list_all()}' for key, value in self.records.items()] # how to flatten the list {value.list_all()} ?
