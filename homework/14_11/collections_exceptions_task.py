@@ -34,7 +34,6 @@ class Student:
                 sbj_grades = self.grades[subject]
                 if len(sbj_grades) > 0:
                     return (sum(sbj_grades) / len(sbj_grades), len(sbj_grades))
-        
         else:
             total_sum = sum(sum(gr) for gr in self.grades.values())
             total_num = sum(len(gr) for gr in self.grades.values())
