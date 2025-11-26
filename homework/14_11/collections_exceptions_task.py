@@ -16,6 +16,7 @@ class InvalidGradeError(Exception):
     pass
     
 from dataclasses import dataclass, field
+from typing import Optional
 
 @dataclass
 class Student:
@@ -28,18 +29,13 @@ class Student:
             raise InvalidGradeError(f'Available grade range is 1 to 5')
         self.grades.setdefault(subject, []).append(grade)
     
-    def average_grade(self, subject: str = None):
+    def average_grade(self, subject: Optional[str] = None):
         if subject:
-            if subject in self.grades.keys():
-                sbj_grades = self.grades[subject]
-                if len(sbj_grades) > 0:
-                    return (sum(sbj_grades) / len(sbj_grades), len(sbj_grades))
-        else:
-            total_sum = sum(sum(gr) for gr in self.grades.values())
-            total_num = sum(len(gr) for gr in self.grades.values())
-            if total_num > 0:
-                return ((total_sum / total_num), total_num)
-        return (None, None)
+            sbj_grades = self.grades.get(subject, [])
+            return sum(sbj_grades) / len(sbj_grades) if sbj_grades else 0.0, len(sbj_grades)
+        total_sum = sum(sum(scores) for scores in self.grades.values())
+        total_num = sum(len(scores) for scores in self.grades.values())
+        return total_sum / total_num if total_num else 0.0, total_num
     
     @property
     def subjects(self):
@@ -63,6 +59,7 @@ std2.add_grade('Biology', 1)
 print('Student 2 Subjects:', std2.subjects)
 print('Student 2 Average Grade:', std2.average_grade()[0])
 std3 = Student('Alice', 18)
+print('Student 3 Average Grade:', std3.average_grade('Biology'))
 print('Student 3 Average Grade:', std3.average_grade())
 
 '''
@@ -161,17 +158,14 @@ class School:
         for group in self.groups.values():
             for student in group.students:
                 average, number_of_marks = student.average_grade(subject)
-                if not None in (average, number_of_marks):
-                    grade_summary += average * number_of_marks
-                    total_marks += number_of_marks
-        if total_marks > 0:
-            print(grade_summary, total_marks)
-            return round(grade_summary / total_marks, 2)
+                grade_summary += average * number_of_marks
+                total_marks += number_of_marks
+        return round(grade_summary / total_marks, 2) if total_marks else 0.0
 
 school40 = School()
 school40.add_group('Group 1', group1)
 # print(school40.get_group('Group 1'))
 print(school40.all_groups())
-# print(school40.school_average('Math'))
-# print(school40.school_average())
+print('Math', school40.school_average('Math'))
+print('All subjects', school40.school_average())
 print('Physics', school40.school_average('Physics'))
