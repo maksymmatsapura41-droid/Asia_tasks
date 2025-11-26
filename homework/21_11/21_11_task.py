@@ -14,4 +14,65 @@
 #    полиморфизм метрик,
 #    сбор отчета с одного сервера и агрегацию для фермы серверов.
 
+from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass, field
 
+class Metric(metaclass=ABCMeta):
+    __slots__ = ("name", ) # is comma a misprint ?
+
+    def __init__(self, name: str):
+        self.name = name
+    
+    @abstractmethod
+    def collect(self):
+        raise NotImplementedError("Method collect should be implemented")
+
+class MetricFactory(type):
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        value_name = namespace.get('__value_name__', 'value')
+        cls = super().__new__(mcs, name, bases, namespace)
+        cls.__slots__ = (value_name)
+
+        def __init__(self, value: float):
+            super(cls, self).__init__(name)
+            self._validate(value)
+            setattr(self, value_name, value)
+        
+        cls.__init__ = __init__
+
+        def _validate(self, value):
+            if value not in range(0, 101):
+                raise ValueError("Value must be in 0-100 range")
+
+        cls._validate = _validate
+
+        def collect(self) -> float:
+            return getattr(self, value_name)
+        
+        cls.collect = collect
+
+        return cls
+
+class CpuUsage(Metric, metaclass=Metric):
+    __value_name__ = 'LoadAverage'
+
+class MemoryUsage(Metric, metaclass=Metric):
+    __value_name__ = 'LoadAverage'
+
+class DiskUsage(Metric, metaclass=Metric):
+    __value_name__ = 'LoadAverage'
+
+@dataclass(slots=True)
+class ServerMonitor:
+    metrics: list = field(default_factory=list)
+
+    def get_report(self):
+        pass
+
+@dataclass(slots=True)
+class ServerFarmMonitor:
+    averages: list = field(default_factory=list)
+
+
+cpu1 = CpuUsage()
+# print(cpu1.__slots__)
