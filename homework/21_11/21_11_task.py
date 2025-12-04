@@ -16,7 +16,7 @@
 
 from abc import ABCMeta
 from dataclasses import dataclass, field
-from numpy import average
+from statistics import mean
 
 class Metric(metaclass=ABCMeta):
     __slots__ = ("name", )
@@ -54,7 +54,7 @@ class MetricFactory(ABCMeta):
         cls._validate = _validate
 
         def collect(self) -> float:
-            return average(getattr(self, value_name))
+            return mean(getattr(self, value_name))
         cls.collect = collect
         return cls
 
@@ -93,8 +93,8 @@ load = LoadAverage((3.2, 5.1))
 print(load.name)
 print(load.LoadAverage)
 # print(load.collect())
-# cpu_util = CpuUsage(50)
-# cpu_util.cores = 4  # AttributeError: 'CpuUsage' object has no attribute 'cores' and no __dict__ for setting new attributes
+cpu_util = CpuUsage(50)
+cpu_util.cores = 4  # AttributeError: 'CpuUsage' object has no attribute 'cores' and no __dict__ for setting new attributes
 # print(cpu_util.__slots__)
 
 server1 = ServerMonitor([
