@@ -1,4 +1,5 @@
 from loguru import logger
+logger.remove()
 logger.add(
     "logs/servers.log",
     level="INFO",

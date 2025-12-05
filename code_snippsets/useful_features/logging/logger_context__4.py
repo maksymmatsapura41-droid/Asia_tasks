@@ -6,5 +6,8 @@ import uuid
 logger.remove()
 logger.add(sys.stdout, level="TRACE", format="{message} | {level} | {extra}")
 
-logger.info("info message", extra=random.randint(0, 100), filename=str(uuid.uuid4()) + '.txt')
-logger.warning("warning message", extra=random.randint(0, 100), filename=str(uuid.uuid4()) + '.txt')
+GLOBAL_ID = 100000
+
+
+logger.info("info message", extra=random.randint(0, 100), filename=str(uuid.uuid4()) + '.txt', global_id=GLOBAL_ID)
+logger.warning(f"warning message {GLOBAL_ID}", extra=random.randint(0, 100), filename=str(uuid.uuid4()) + '.txt')

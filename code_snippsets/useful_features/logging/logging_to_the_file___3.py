@@ -2,7 +2,7 @@ from loguru import logger
 import time
 
 logger.remove()
-logger.add("logs/app.log", level="INFO" ,format="{message} | {time} | {name} ", rotation="100 B", retention="5 seconds")
+logger.add("logs/app.log", level="INFO" ,format="{message} | {time} | {name} ", rotation="10 B", retention="5 seconds")
 logger.info("User started a session")
 
 for i in range(10):
