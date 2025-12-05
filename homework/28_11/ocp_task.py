@@ -11,26 +11,19 @@ from dataclasses import dataclass, field
 class MediaChannel(ABC):
     @abstractmethod
     def notify(self, message):
-        raise NotImplementedError("Method area should be implemented")
-
-class EmailChannel:
-    def __init__(self):
         pass
+
+class EmailChannel(MediaChannel):
 
     def notify(self, message):
         print(f"Email: {message}")
         
-class SMSChannel:
-    def __init__(self):
-        pass
+class SMSChannel(MediaChannel):
 
     def notify(self, message):
         print(f"SMS: {message}")
 
-
-class TelegramChannel:
-    def __init__(self):
-        pass
+class TelegramChannel(MediaChannel):
 
     def notify(self, message):
         print(f"Telegram: {message}")
@@ -42,7 +35,6 @@ class NotificationManager:
     def notify(self, message):
         for channel in self.channels:
             channel.notify(message)
-
 
 manager = NotificationManager([EmailChannel(), SMSChannel(), TelegramChannel()])
 manager.notify("Your order has been shipped")
