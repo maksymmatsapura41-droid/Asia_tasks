@@ -7,46 +7,34 @@
 
 
 class BankAccount:
-    def __init__(self, owner, balance=0):
+    def __init__(self, owner: str, balance=0):
         self.owner = owner
         self.balance = balance
+    
+    def deposit(self, amount=0):
+        self.balance += amount
+
+    def withdraw(self, amount=0):
+        self.balance -= amount        
 
 class AccountSaver():
     @staticmethod
-    def save_to_db(account):
+    def save_to_db(account: BankAccount):
         with open ('db.txt', 'a') as file:
             file.writelines(f'{account.owner}:{account.balance}\n')
 
-class BalanceManager():
-    @staticmethod
-    def deposit(account, amount=0):
-        account.balance += amount
-
-    @staticmethod
-    def withdraw(account, amount=0):
-        account.balance -= amount
-
 class ShowInfo():
     @staticmethod
-    def print_statement(account):
+    def print_statement(account: BankAccount):
         print(f"{account.owner}: {account.balance}")
-
-class AccountManager:
-    def __init__(self):
-        self.info = ShowInfo()
-        self.change = BalanceManager()
-        self.save_to_db = AccountSaver()
 
 acc1 = BankAccount('Bob Smith', 100)
 acc2 = BankAccount('Alice Goodenough', 150)
 
-account_manager = AccountManager()
-account_manager.info.print_statement(acc1)
-account_manager.change.deposit(acc1, 5)
-account_manager.info.print_statement(acc1)
-
-account_manager.change.withdraw(acc2, 10)
-account_manager.info.print_statement(acc2)
-
-account_manager.save_to_db.save_to_db(acc1)
-account_manager.save_to_db.save_to_db(acc2)
+ShowInfo.print_statement(acc1)
+acc1.deposit(5)
+ShowInfo.print_statement(acc1)
+acc2.withdraw(10)
+ShowInfo.print_statement(acc2)
+AccountSaver.save_to_db(acc1)
+AccountSaver.save_to_db(acc2)
