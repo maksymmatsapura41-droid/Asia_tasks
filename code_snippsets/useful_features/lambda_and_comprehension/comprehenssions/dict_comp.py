@@ -36,3 +36,8 @@ grades = {
     "Kate": [8, 10, 10],
     "Max": [4, 12, 6],
 }
+
+result = {name: [mark for mark in scores if mark > 10]
+          for name, scores in grades.items()}
+
+print(result)
