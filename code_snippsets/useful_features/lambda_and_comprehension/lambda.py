@@ -1,12 +1,15 @@
 # lambda arguments: expression
+# map() applies a specific function to every item in an iterable and returns the results.
+# Syntax: map(function, iterable)
+# filter() constructs an iterator from elements of an iterable for which a function returns True.
+# Syntax: filter(function, iterable)
+square = lambda x: x * x
+print(square(5))
 
-# square = lambda x: x * x
-# print(square(5))
-#
-#
-# f = lambda x: x + 1
-# f1 = lambda x, y: x + y
-# f2 = lambda a, b, c: a + b + c
+
+f = lambda x: x + 1
+f1 = lambda x, y: x + y
+f2 = lambda a, b, c: a + b + c
 
 sorted([5, 2, 9], key=lambda x: -x)
 nums = [1, 2, 3, 4]
@@ -33,6 +36,9 @@ doubled = list(map(lambda x: x * 2, nums))
 # filter
 nums = [1, 2, 3, 4]
 even = list(filter(lambda x: x % 2 == 0, nums))
+
+#if example
+even_odd = list(filter(lambda x: "even" if x % 2 == 0 else "odd", even))
 
 
 # bad example
