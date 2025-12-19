@@ -19,20 +19,9 @@ def load(requests: int):
 #   Возвращает True, если сервер онлайн и количество ошибок небольшое (<10), иначе False
 
 def healthy(info: dict):
-    if info['status'] == 'online' and info['errors'] < 10:
-        return True
-    return False
+    return (info['status'] == 'online' and info['errors'] < 10)
 
-# Задачи (выполнять через comprehensions)
 
-# Создать список строк вида "server-1: high load", используя функцию классификации нагрузки. 
-# Учитывать только online-серверы.
-
-# Создать словарь, где ключ — имя сервера, а значение — результат функции проверки состояния. 
-# Учитывать только online-серверы.
-
-# Создать множество регионов, где есть нездоровые серверы.
-# Создать словарь, где ключ — регион, а значение — список серверов с высокой нагрузкой (high load).
 
 servers = [
     {"name": "server-1", "status": "online", "requests": 1200, "errors": 5, "region": "EU"},
@@ -42,14 +31,23 @@ servers = [
     {"name": "server-5", "status": "offline", "requests": 0, "errors": 0, "region": "EU"},
 ]
 
-result1 = [record["name"] +': high load' for record in servers if load(record['requests']) == 'high' and healthy(record)]
+# Задачи (выполнять через comprehensions)
+
+# Создать список строк вида "server-1: high load", используя функцию классификации нагрузки. 
+# Учитывать только online-серверы.
+result1 = [f"{record['name']}: {load(record['requests'])}" for record in servers if record["status"] == "online"]
 print(result1)
 
-result2 = {record["name"]:healthy(record) for record in servers if healthy(record)}
+# Создать словарь, где ключ — имя сервера, а значение — результат функции проверки состояния. 
+# Учитывать только online-серверы.
+
+result2 = {record["name"]:healthy(record) for record in servers if record["status"] == "online"}
 print(result2)
 
-result3 = set(record["region"] for record in servers if not healthy(record))
+# Создать множество регионов, где есть нездоровые серверы.
+result3 = {record["region"] for record in servers if not healthy(record)}
 print(result3)
 
+# Создать словарь, где ключ — регион, а значение — список серверов с высокой нагрузкой (high load).
 result4 = {record["region"]:[item["name"] for item in servers if load(item["requests"]) == 'high' and item["region"] == record["region"]] for record in servers}
 print(result4)
