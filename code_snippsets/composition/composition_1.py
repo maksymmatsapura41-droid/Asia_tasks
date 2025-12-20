@@ -1,3 +1,4 @@
+from loguru import logger
 class Engine:
     def __init__(self, name):
         self.name = name
@@ -14,6 +15,7 @@ class Car:
         print("Car is moving")
 
 car = Car(name="ferrari")
+logger.info("This is the info message")
 car.drive()
 
 
