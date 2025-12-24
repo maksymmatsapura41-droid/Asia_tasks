@@ -4,3 +4,5 @@ products = [
     {"name": "banana", "price": 5},
     {"name": "cherry", "price": 20}
 ]
+
+print(list(map(lambda x: x["price"] * 1.5 if x["price"] > 10 else x["price"], products)))
