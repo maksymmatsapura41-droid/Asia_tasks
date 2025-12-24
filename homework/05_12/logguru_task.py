@@ -10,49 +10,88 @@
 
 import datetime
 import random
+import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
+from loguru import logger
+
+gl_format = "[{time:YYYY:MM:DD-HH:mm:ss}] | {name}:{line} | {level}: {message} | [tr_id={extra[transaction_id]}]"
+custom_format=(
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+        "<level>{level: <8}</level> | "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
+        "<level>{message}</level> | <blue>tr_id={extra[transaction_id]}</blue>"
+    )
+
+logger.remove()
+logger.add(
+    "logs/info.log", 
+    format=gl_format,
+    level="INFO" ,
+    rotation="10 kB", 
+    retention="5 days",
+    compression="zip",
+    )
+
+logger.add(
+    "logs/error.log",
+    format=gl_format,
+    level="ERROR" ,
+    rotation="10 kB", 
+    retention="15 days",
+    compression="gz",
+    )
+
+logger.add(sys.stdout, level="INFO", format=custom_format)
 
 
 class PaymentMethod(ABC):
+    payment_count = 0
+
+    @classmethod
+    def get_id(cls):
+        cls.payment_count += 1
+        return cls.payment_count
+
     def __init__(self, holder: str, provider: str):
         self.holder = holder
         self.provider = provider
 
+    @logger.catch(message="Method must be implemeted", level="ERROR")
     @abstractmethod
     def pay(self, amount: float):
+        logger.bind(transaction_id=id).info("Pay")
         raise NotImplementedError
 
 
 class CardPayment(PaymentMethod):
+    @logger.catch(message="Transaction limit exceeded for card", level="ERROR")
     def pay(self, amount):
         if amount > 5000:
-            raise ValueError("Transaction limit exceeded for card")
-        print(f"{amount} paid by Card {self.provider}: {self.holder}")
-
+            raise ValueError()
+        logger.success(f"{amount} paid by Card {self.provider}: {self.holder}")
 
 class BankTransferPayment(PaymentMethod):
+    @logger.catch(message="Bank server unavailable", level="ERROR")
     def pay(self, amount: float):
         if random.random() < 0.2:
-            raise ConnectionError("Bank server unavailable")
-        print(f"{amount} paid by Bank Transfer {self.provider}: {self.holder}")
+            raise ConnectionError()
+        logger.success(f"{amount} paid by Bank Transfer {self.provider}: {self.holder}")
 
 
 class CryptoPayment(PaymentMethod):
+    @logger.catch(message="Crypto amount must be positive", level="ERROR")
     def pay(self, amount: float):
         if amount <= 0:
-            raise ValueError("Crypto amount must be positive")
-        print(f"{amount} paid via Crypto {self.provider}: {self.holder}")
-
+            raise ValueError()
+        logger.success(f"{amount} paid via Crypto {self.provider}: {self.holder}")
 
 class PaymentLogger:
     @staticmethod
     def record_payment(payment_method: PaymentMethod, amount: float, transaction_time: str):
         log_file = Path(f"payment_log_{transaction_time[:10]}.txt")
-
-        # Probably error
         if random.random() < 0.1:
-            raise IOError("Failed to write to log file")
+            logger.error('Failed to record payment')
 
         with open(log_file, 'a') as file:
             file.writelines(
@@ -62,18 +101,18 @@ class PaymentLogger:
                 f"{amount}\n"
             )
 
-
 class ReceiptGenerator:
     @staticmethod
     def generate_receipt(payment_method: PaymentMethod, amount: float, transaction_time: str):
-        print(
-            f"=> Receipt\n"
+        if random.random() < 0.1:
+            logger.warning('Failed to generate the receipt')
+        logger.info(
+            f"\n---- Receipt ---:\n"
             f"Time: {transaction_time}\n"
             f"Amount: {amount}\n"
             f"Holder: {payment_method.holder}\n"
             f"Provider: {payment_method.provider}"
         )
-
 
 class PaymentService():
     def __init__(self, payment_method: PaymentMethod, amount: float, receipt: ReceiptGenerator, logger: PaymentLogger):
@@ -82,15 +121,14 @@ class PaymentService():
         self.payment_method = payment_method
         self.amount = amount
         self.transaction_time = None
-
+    
+    @logger.catch(message='Failed to pay', level="ERROR")
     def pay(self):
         self.transaction_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Use logger catch
         self.payment_method.pay(self.amount)
-
         self.receipt.generate_receipt(self.payment_method, self.amount, self.transaction_time)
-
         self.logger.record_payment(self.payment_method, self.amount, self.transaction_time)
 
 
@@ -102,15 +140,15 @@ def run_demo():
     ]
 
     for method in methods:
-        amount = random.choice([50, 200, 6000, -10, 300])
-        service = PaymentService(method, amount, ReceiptGenerator, PaymentLogger)
-
-        print("\n--- New Transaction ---")
-        try:
-            service.pay()
-        except Exception as e:
-            print(f"Transaction failed: {e}")
-
+        id = PaymentMethod.get_id()
+        with logger.contextualize(transaction_id = id):
+            amount = random.choice([50, 200, 6000, -10, 300, 7000, 8000, 9000])
+            service = PaymentService(method, amount, ReceiptGenerator, PaymentLogger)
+            logger.info("\n--- New Transaction ---")
+            try:
+                service.pay()
+            except Exception as e:
+                logger.error(f"Transaction failed: {e}")
 
 if __name__ == "__main__":
     run_demo()
