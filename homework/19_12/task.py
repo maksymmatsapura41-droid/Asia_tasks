@@ -68,6 +68,16 @@ print(cpu_result)
 по всем серверам.
 '''
 
+def get_cpu(servers: list):
+    for server in servers:
+        for value in server.metrics["cpu"]:
+            yield value
+        
+print("GENERATOR-4")
+print(get_cpu(servers))
+for value in get_cpu(servers):
+    print(value)
+
 '''
 5.--------------------------------------------
 Создать генератор, возвращающий кортежи вида:
@@ -75,7 +85,18 @@ print(cpu_result)
 для всех метрик всех серверов,
 где value >= 85.
 '''
+print("GENERATOR-5")
+def get_metric(servers: list):
+    for server in servers:
+        for key, values in server.metrics.items():
+            for value in values:
+                if value >= 85:
+                    yield (server.id, key, value)
 
+print(get_metric(servers))
+for value in get_metric(servers):
+    print(value)
+        
 '''
 6.--------------------------------------------
 Отсортировать список серверов по двум критериям:
