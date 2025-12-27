@@ -24,6 +24,8 @@ def not_during_the_night(func):
     return wrapper
 
 def say_whee_day():
-    print("Whee!")
+    print("Whee day!")
 
 say_whee_dt = not_during_the_night(say_whee_day)
+
+say_whee_dt()

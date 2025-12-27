@@ -1,7 +1,8 @@
 def do_twice(func):
     def wrapper(*args, **kwargs):
-        func(*args, **kwargs)
-        return func(*args, **kwargs)
+        value = func(*args, **kwargs)
+        value_1 = func(*args, **kwargs)
+        return value, value_1
     return wrapper
 
 

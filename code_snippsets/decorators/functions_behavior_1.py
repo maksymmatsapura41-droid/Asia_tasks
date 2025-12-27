@@ -13,7 +13,6 @@ def parent_1():
 
 
 
-
 # pass function as argument
 def say_hello(name):
     return f"Hello {name}"
@@ -23,6 +22,8 @@ def be_awesome(name):
 
 def greet_bob(greeter_func):
     return greeter_func("Bob")
+
+greet_bob(greeter_func=greet_bob)
 
 
 
