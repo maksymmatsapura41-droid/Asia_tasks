@@ -67,17 +67,11 @@ print(cpu_result)
 который последовательно возвращает все значения cpu
 по всем серверам.
 '''
-
-def get_cpu(servers: list):
-    for server in servers:
-        for value in server.metrics["cpu"]:
-            yield value
-        
-print("GENERATOR-4")
-print(get_cpu(servers))
-for value in get_cpu(servers):
-    print(value)
-
+print("GENERATOR-N4")
+gen_get_cpu = (cpu_value for server in servers for cpu_value in server.metrics["cpu"] )
+for item in range(sum(len(server.metrics["cpu"]) for server in servers)):
+    print(next(gen_get_cpu))
+print('-------------')
 '''
 5.--------------------------------------------
 Создать генератор, возвращающий кортежи вида:
@@ -85,7 +79,7 @@ for value in get_cpu(servers):
 для всех метрик всех серверов,
 где value >= 85.
 '''
-print("GENERATOR-5")
+print("GENERATOR-N5")
 def get_metric(servers: list):
     for server in servers:
         for key, values in server.metrics.items():
@@ -120,3 +114,14 @@ print(mem_result)
 is_cpu_critical с порогом 90
 is_memory_warning с порогом 80
 '''
+from functools import partial
+
+def is_metric_above_threshold(metric_name: str, threshold: int, server: Server):
+    return server.max_metric(metric_name) >= threshold
+
+is_cpu_critical = partial(is_metric_above_threshold, "cpu", 90)
+is_memory_warning = partial(is_metric_above_threshold, "memory", 80)
+
+for item in servers:
+    print(item.id, 'is_cpu_critical:', is_cpu_critical(item))
+    print(item.id, 'is_memory_warning:', is_memory_warning(item))
