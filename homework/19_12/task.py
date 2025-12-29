@@ -80,16 +80,17 @@ print('-------------')
 где value >= 85.
 '''
 print("GENERATOR-N5")
-def get_metric(servers: list):
-    for server in servers:
-        for key, values in server.metrics.items():
-            for value in values:
-                if value >= 85:
-                    yield (server.id, key, value)
+# def get_metric(servers: list):
+#     for server in servers:
+#         for key, values in server.metrics.items():
+#             for value in values:
+#                 if value >= 85:
+#                     yield (server.id, key, value)
 
-print(get_metric(servers))
-for value in get_metric(servers):
-    print(value)
+gen_get_metric = ((server.id, k, v) for server in servers for k, values in server.metrics.items() for v in values if v >= 85)
+for item in range(len([v for server in servers for metric in server.metrics.values() for v in metric if v >= 85])):
+    print(next(gen_get_metric))
+print('--------------')
         
 '''
 6.--------------------------------------------
