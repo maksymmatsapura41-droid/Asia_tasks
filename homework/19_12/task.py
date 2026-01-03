@@ -9,13 +9,10 @@ class Server:
         self.alerts = alerts
 
     def max_metric(self, name):
-        max_metric = max(self.metrics[name])
-        return max_metric
+        return max(self.metrics[name])
 
     def avg_metric(self, name):
-        avg_metric = mean(self.metrics[name])
-        # print(self.id, avg_metric)
-        return avg_metric
+        return mean(self.metrics[name])
     
     # Реализовать:
     # max_metric(name) -> int
