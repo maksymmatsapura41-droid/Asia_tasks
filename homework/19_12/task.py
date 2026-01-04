@@ -66,8 +66,9 @@ print(cpu_result)
 '''
 print("GENERATOR-N4")
 gen_get_cpu = (cpu_value for server in servers for cpu_value in server.metrics["cpu"] )
-for item in range(sum(len(server.metrics["cpu"]) for server in servers)):
-    print(next(gen_get_cpu))
+
+for item in gen_get_cpu:
+    print(item)
 print('-------------')
 '''
 5.--------------------------------------------
@@ -85,8 +86,9 @@ print("GENERATOR-N5")
 #                     yield (server.id, key, value)
 
 gen_get_metric = ((server.id, k, v) for server in servers for k, values in server.metrics.items() for v in values if v >= 85)
-for item in range(len([v for server in servers for metric in server.metrics.values() for v in metric if v >= 85])):
-    print(next(gen_get_metric))
+
+for item in gen_get_metric:
+    print(item)
 print('--------------')
         
 '''
