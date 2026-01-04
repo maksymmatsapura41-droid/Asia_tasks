@@ -12,7 +12,7 @@ def slow_down(func):
 @slow_down
 def countdown(from_number):
     if from_number < 1:
-         print("Liftoff!")
+         print("off!")
     else:
         print(from_number)
         countdown(from_number - 1)

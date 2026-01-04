@@ -14,3 +14,6 @@ def greet(name):
     print(f"Hi, {name}!")
 
 greet("John")
+
+# repeat_instance = Repeat(times=3)     # __init__
+# greet = repeat_instance.__call__(greet)
