@@ -20,4 +20,11 @@ def function_to_repeat(api_url):
     time.sleep(1)
     return api_url
 
+@repeat()
+def function_to_repeat_1(api_url):
+    print("Repeat function")
+    time.sleep(1)
+    return api_url
+
+function_to_repeat_1(api_url="https://google.com")
 function_to_repeat(api_url="https://google.com")

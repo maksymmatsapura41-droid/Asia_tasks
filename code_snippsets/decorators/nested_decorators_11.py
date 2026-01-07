@@ -20,9 +20,14 @@ def timer(func):
     return wrapper_timer
 
 
+# first do_it_twice
+# second timer
+#
+# say_whee = timer(do_it_twice(greet))
 @timer
 @do_it_twice
 def greet(name):
     print(f"Hello {name}")
 
 greet("John")
+

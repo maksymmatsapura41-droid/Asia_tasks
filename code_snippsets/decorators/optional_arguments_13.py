@@ -16,8 +16,18 @@ def repeat_decor(_func=None, *, repeat=1):
         return decorator(_func)
 
 
-@repeat_decor(repeat=5)
+#repeat_decor_arg(repeat_decor(api_request))
+
+#repeat_decor_arg(decorator)
+
+@repeat_decor(repeat=2)
 def api_request():
     print('api request')
 
+#repeat_decor(api_request)
+@repeat_decor
+def api_request_1():
+    print('api request')
+
 api_request()
+api_request_1()

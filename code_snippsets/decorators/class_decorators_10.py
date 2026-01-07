@@ -9,6 +9,7 @@ class Player:
         self.age = age
         self.ppg = ppg
 
+    @timer
     def show_player_info(self):
         return f"{self.name} {self.surname} is {self.age} years old and average {self.ppg} ppg."
 

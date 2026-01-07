@@ -1,5 +1,5 @@
 class Repeat:
-    def __init__(self, times):
+    def __init__(self, times=1):
         self.times = times
 
     def __call__(self, func):
@@ -9,7 +9,7 @@ class Repeat:
         return wrapper
 
 
-@Repeat(times=3)
+@Repeat()
 def greet(name):
     print(f"Hi, {name}!")
 
