@@ -1,15 +1,14 @@
 class Repeat:
-    def __init__(self, times=1):
+    def __init__(self, func,  times=1):
         self.times = times
+        self.func = func
 
-    def __call__(self, func):
-        def wrapper(*args, **kwargs):
-            for _ in range(self.times):
-                func(*args, **kwargs)
-        return wrapper
+    def __call__(self, *args, **kwargs):
+        for _ in range(self.times):
+            self.func(*args, **kwargs)
 
 
-@Repeat()
+@Repeat
 def greet(name):
     print(f"Hi, {name}!")
 

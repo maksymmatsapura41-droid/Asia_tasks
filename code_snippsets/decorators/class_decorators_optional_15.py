@@ -14,13 +14,17 @@ class Timer:
 
 
 
-@Timer
-def say_hello():
-    print("Hello!")
+# @Timer
+# def say_hello():
+#     print("Hello!")
 
 @Timer(repeat=3)
 def say_hi():
     print("Hi!")
 
-say_hello()
+# say_hello()
 say_hi()
+
+# greet = Timer(repeat=3)(greet)
+#greet = Timer(greet)
+
