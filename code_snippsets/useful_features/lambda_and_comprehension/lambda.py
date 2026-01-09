@@ -20,10 +20,9 @@ new = list(map(lambda h: f"{h}.company.local", hosts))
 
 
 from functools import partial
-
+# macros or alias
 log = lambda msg: print("[LOG]", msg)
 info = partial(log, "[INFO]")
-
 
 #sort by second argument
 items = [(1, 5), (3, 1), (4, 9)]
@@ -37,7 +36,7 @@ doubled = list(map(lambda x: x * 2, nums))
 nums = [1, 2, 3, 4]
 even = list(filter(lambda x: x % 2 == 0, nums))
 
-#if example
+#i f example
 even_odd = list(filter(lambda x: "even" if x % 2 == 0 else "odd", even))
 
 
