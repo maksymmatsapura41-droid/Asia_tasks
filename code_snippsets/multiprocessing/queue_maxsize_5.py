@@ -3,8 +3,8 @@ from multiprocessing import Process, Queue
 def worker(q, num):
     # unique process
     q.put(f"Процесс {num} завершён")
-    # if q.full():
-    #     print(q.get())
+    if q.full():
+        q.get()
 
 if __name__ == "__main__":
     q = Queue(maxsize=5)

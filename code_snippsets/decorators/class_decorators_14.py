@@ -1,5 +1,5 @@
 class Repeat:
-    def __init__(self, func,  times=1):
+    def __init__(self, func, times=1):
         self.times = times
         self.func = func
 

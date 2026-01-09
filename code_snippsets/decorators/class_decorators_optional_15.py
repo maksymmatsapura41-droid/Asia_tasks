@@ -9,6 +9,7 @@ class Timer:
             func = args[0]
             return Timer(func, repeat=self.repeat)
         else:
+            # without parentheses
             for _ in range(self.repeat):
                 self.func(*args, **kwargs)
 
