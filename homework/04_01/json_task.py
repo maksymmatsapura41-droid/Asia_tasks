@@ -1,13 +1,17 @@
 '''Создай два декоратора:
 to_json - возвращает результат функции в виде JSON-строки.
 from_json - преобразует JSON-строку в объект Python и передаёт его в функцию.'''
-
-from functools import wraps
+import functools
 import json
 from datetime import datetime
 
+def to_json(fun):
+    @functools.wraps(fun)
+    def wrapper(*args, **kwargs):
+        return json.dumps(fun(*args, **kwargs), ensure_ascii=False, default=str)
+    return wrapper
 
-#@to_json / use json.dumps(result, ensure_ascii=False, default=str)
+@to_json # / use json.dumps(result, ensure_ascii=False, default=str)
 def get_data():
     user = {
         "id": 42,
@@ -19,7 +23,13 @@ def get_data():
     }
     return user
 
-# @from_json
+def from_json(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(json.loads(*args, **kwargs))
+    return wrapper
+
+@from_json
 def print_user(data):
     required_fields = ("id", "username", "email")
 
