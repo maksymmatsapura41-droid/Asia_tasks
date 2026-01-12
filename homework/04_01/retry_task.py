@@ -7,7 +7,7 @@ times - количество попыток.
 
 import functools
 
-def retry(times=3):
+def retry(_func=None, *, times=3):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -19,9 +19,13 @@ def retry(times=3):
                     func_error = e
             return func_error
         return wrapper
-    return decorator
+    if _func is None:
+        return decorator
+    else:
+        return decorator(_func)
 
-@retry(times=3)
+# @retry(times=3)
+@retry
 def risky_action():
     import random
     if random.random() < 0.7:
