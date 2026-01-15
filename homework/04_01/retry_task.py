@@ -11,13 +11,14 @@ def retry(_func=None, *, times=3):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            for i in range(1, times + 1):
+            func_error = None 
+            for i in range(times):
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
                     print(f'The error happend, retrying {i} of {times}')
                     func_error = e
-            return func_error
+            raise func_error
         return wrapper
     if _func is None:
         return decorator
