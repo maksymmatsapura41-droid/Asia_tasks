@@ -44,6 +44,7 @@ def log_exceptions(funct):
         except Exception as e:
             with open('repos/Asia_tasks/homework/04_01/traceback.log', 'a') as log_file:
                 traceback.TracebackException.from_exception(e).print(file=log_file)
+                raise e
     return wrapper
 
 @log_time

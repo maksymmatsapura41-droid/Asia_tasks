@@ -25,8 +25,9 @@ def get_data():
 
 def from_json(func):
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        return func(json.loads(*args, **kwargs))
+    def wrapper(data, *args, **kwargs):
+        dict_data = json.loads(data)
+        return func(dict_data, *args, **kwargs)
     return wrapper
 
 @from_json
