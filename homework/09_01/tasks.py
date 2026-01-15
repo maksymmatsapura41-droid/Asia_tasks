@@ -20,8 +20,10 @@ if __name__ == "__main__":
     q1 = Queue()
     processes = [Process(target=gen_random_numbers, args=(q1,)) for _ in range(4)]
     for p in processes:
-        p.start()
-        p.join()
+        p.start() # start all process one by one
+    
+    for p in processes:
+        p.join() # wait till each process finishes
 
     res = []
     while not q1.empty():
