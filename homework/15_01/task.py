@@ -68,10 +68,7 @@ if __name__ == '__main__':
                 error_callback=on_error
             )
             async_results.append(async_process)
-        
-        pool.close()
-        pool.join()
-
+            
     for item in async_results:
         try:
             result = item.get(timeout=2)
