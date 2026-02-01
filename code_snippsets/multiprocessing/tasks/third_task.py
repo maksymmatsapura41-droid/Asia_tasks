@@ -9,6 +9,7 @@
 """
 
 import math
+from multiprocessing import Pool
 
 def is_prime(n):
     if n < 2:
@@ -17,3 +18,14 @@ def is_prime(n):
         if n % i == 0:
             return False
     return True
+
+if __name__ == '__main__':
+    my_list = list(range(10, 50))
+    with Pool(4) as p:
+        res = p.map(is_prime, my_list)
+
+    prime_numbers = [pair[0] for pair in (zip(my_list, res)) if pair[1] is True]
+    print(prime_numbers, len(prime_numbers))
+    
+
+
