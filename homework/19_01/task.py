@@ -44,12 +44,38 @@
 
 from multiprocessing import shared_memory, Value, Array, Lock, Process, Manager
 import struct
-def read_password(mem_name):
+import datetime
+import time
+
+def robot_function(id, mem_name, counter, warehouse, final_log, lock):
     existing_shm = shared_memory.SharedMemory(name=mem_name)
-    current_password = (struct.unpack('9s', existing_shm.buf[:9])[0]).decode()
-    print(current_password)
+    read_password(id, existing_shm)
+    take_order(id, counter, lock) 
+    # order_id = take_order(id, counter, lock) # как залочить order_id и передать его в report()?
+    complete_order(id, warehouse, lock)
+    report(id, final_log, lock)
+    # report(id, order_id, final_log, lock)
     existing_shm.close()
 
+def report(id, final_log, lock):
+    with lock:
+        end_time = datetime.datetime.now()
+        final_log.append({'id': id, 'end_time': end_time.strftime("%Y-%m-%d %H:%M:%S")})
+
+def read_password(id, existing_shm):
+    current_password = (struct.unpack('9s', existing_shm.buf[:9])[0]).decode()
+    print(f'Robot {id} read', current_password)
+
+def take_order(id, counter, lock):
+    with lock:
+        counter.value += 1
+        print(f'Robot {id} took order', counter.value)
+        time.sleep(1)
+
+def complete_order(id, warehouse, lock):
+    with lock:
+        warehouse[id] = id # изменина на id вместо 1, чтобы точно понимать, что робот нашел ячейку со своим индексом и заменил именно ее
+        print(f'Robot {id} completed order', warehouse[id])
 
 if __name__ == '__main__':
     shm_name = shared_memory.SharedMemory(create=True, size=32) # как определять необходимый размер?
@@ -58,10 +84,15 @@ if __name__ == '__main__':
     counter = Value('i', 0)
     warehouse = Array('i', [0, 0, 0, 0, 0])
     lock = Lock()
-    read_password(shm_name.name)
+    with Manager() as manager:
+        final_log = manager.list()
 
+    # визуализация порядка выполнения процессов?
+        processes = [Process(target=robot_function, args=(id, shm_name.name, counter, warehouse, final_log, lock)) for id in range(5)]
+        for p in processes: p.start()
+        for p in processes: p.join()
+        print(f'Total orders: {counter.value}\n', f'Completed orders: {list(warehouse)}\n', final_log)
+    shm_name.unlink()
 
-    # with Manager() as manager:
-    #     common_log = manager.list()
 
 
