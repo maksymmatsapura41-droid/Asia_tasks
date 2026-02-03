@@ -42,3 +42,31 @@ if __name__ == "__main__":
 # Пока файлы "качаются", программа должна вывести в консоль сообщение: "Главный поток не заблокирован, могу делать что-то еще!".
 # В конце нужно собрать все размеры файлов и вывести их сумму.
 # Ключевой момент: Не используй gather в этой задаче. Используй список тасок и пройдись по ним в цикле с await.
+import random
+
+file_names = [ f'File-{str(random.randint(1, 10))}' for _ in range(5)]
+print(file_names)
+
+async def download_file(name: str) -> int:
+    duration = random.randint(1, 10)
+    print(f'Downloading file {name}...')
+    await asyncio.sleep(duration)
+    file_size = len(name) * duration
+    print(f'Downloaded file {name} in {duration}s, size {file_size}')
+    return file_size
+
+async def main():
+    start = time.time()
+    # считается ли это присвоением аналогичным task = asyncio.create_task(download_file(file_name)) ?
+    tasks = [ asyncio.create_task(download_file(file_names[id])) for id in range(len(file_names)) ] 
+    print('Tasks:', len(tasks))
+    total_size = []
+    for task in tasks:
+        print("Главный поток не заблокирован, могу делать что-то еще!")
+        total_size.append(await task)
+
+    end = time.time()
+    print(f'Total time: {str(end - start)} Total size: {sum(total_size)}')
+
+if __name__ == "__main__":
+    asyncio.run(main())
