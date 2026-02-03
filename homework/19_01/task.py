@@ -59,8 +59,10 @@ def robot_function(id, mem_name, counter, warehouse, final_log, lock):
 
 def report(id, final_log, lock):
     with lock:
-        end_time = datetime.datetime.now()
-        final_log.append({'id': id, 'end_time': end_time.strftime("%Y-%m-%d %H:%M:%S")})
+        time.sleep(1)
+        end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f'{id} reported completed order at {end_time}')
+        final_log.append({'id': id, 'end_time': end_time})
 
 def read_password(id, existing_shm):
     current_password = (struct.unpack('9s', existing_shm.buf[:9])[0]).decode()
