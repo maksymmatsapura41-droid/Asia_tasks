@@ -57,12 +57,11 @@ async def download_file(name: str) -> int:
 
 async def main():
     start = time.time()
-    # считается ли это присвоением аналогичным task = asyncio.create_task(download_file(file_name)) ?
-    tasks = [ asyncio.create_task(download_file(file_names[id])) for id in range(len(file_names)) ] 
+    tasks = [asyncio.create_task(download_file(name)) for name in file_names]
     print('Tasks:', len(tasks))
     total_size = []
+    print("Главный поток не заблокирован, могу делать что-то еще!")
     for task in tasks:
-        print("Главный поток не заблокирован, могу делать что-то еще!")
         total_size.append(await task)
 
     end = time.time()
