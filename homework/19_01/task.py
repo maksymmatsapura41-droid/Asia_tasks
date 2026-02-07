@@ -43,26 +43,22 @@
 # 'b' - булево значение или байт.
 
 from multiprocessing import shared_memory, Value, Array, Lock, Process, Manager
-import struct
-import datetime
-import time
+import struct, datetime, time
+
 
 def robot_function(id, mem_name, counter, warehouse, final_log, lock):
     existing_shm = shared_memory.SharedMemory(name=mem_name)
     read_password(id, existing_shm)
-    take_order(id, counter, lock) 
-    # order_id = take_order(id, counter, lock) # как залочить order_id и передать его в report()?
-    complete_order(id, warehouse, lock)
-    report(id, final_log, lock)
-    # report(id, order_id, final_log, lock)
+    order_id = take_order(id, counter, lock)
+    complete_order(id, warehouse, order_id)
+    report(id, final_log, order_id)
     existing_shm.close()
 
-def report(id, final_log, lock):
-    with lock:
-        time.sleep(1)
-        end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f'{id} reported completed order at {end_time}')
-        final_log.append({'id': id, 'end_time': end_time})
+def report(id, final_log, order_id):
+    time.sleep(1)
+    end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f'{id} reported completed order at {end_time}')
+    final_log.append({'id': id, 'end_time': end_time, 'order_id': order_id})
 
 def read_password(id, existing_shm):
     current_password = (struct.unpack('9s', existing_shm.buf[:9])[0]).decode()
@@ -71,25 +67,32 @@ def read_password(id, existing_shm):
 def take_order(id, counter, lock):
     with lock:
         counter.value += 1
+        current_value = counter.value
         print(f'Robot {id} took order', counter.value)
         time.sleep(1)
+    return current_value
 
-def complete_order(id, warehouse, lock):
-    with lock:
-        warehouse[id] = id # изменина на id вместо 1, чтобы точно понимать, что робот нашел ячейку со своим индексом и заменил именно ее
-        print(f'Robot {id} completed order', warehouse[id])
+def complete_order(id, warehouse, order_id):
+    warehouse[id] = order_id
+    print(f'Robot {id} completed order', warehouse[id])
 
 if __name__ == '__main__':
-    shm_name = shared_memory.SharedMemory(create=True, size=32) # как определять необходимый размер?
-    struct.pack_into('9s', shm_name.buf, 0, "SERVER_77".encode())
+# Для ASCII латиница имеет размер 1 байт. Но если ты хочешь автоматически определять размер, можно использовать примерно такой формат:
+# Здесь есть также нюанс с памятью - при создании shared_memory память выделяется страницами (page), 
+# которые, как правило, по 4 КБ, поэтому можно смело выделять 100 и больше байт в этом случае.
+    
+    server_id = "SERVER_77".encode('utf-8') # здесь важно сначала превратить строку в байты
+    data_len = len(server_id)
+    fmt = f"{data_len}s"
+    size = struct.calcsize(fmt)
+    shm_name = shared_memory.SharedMemory(create=True, size=size)
+    struct.pack_into('9s', shm_name.buf, 0, server_id)
     
     counter = Value('i', 0)
     warehouse = Array('i', [0, 0, 0, 0, 0])
     lock = Lock()
     with Manager() as manager:
         final_log = manager.list()
-
-    # визуализация порядка выполнения процессов?
         processes = [Process(target=robot_function, args=(id, shm_name.name, counter, warehouse, final_log, lock)) for id in range(5)]
         for p in processes: p.start()
         for p in processes: p.join()
