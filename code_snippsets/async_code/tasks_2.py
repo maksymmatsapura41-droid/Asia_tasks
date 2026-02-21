@@ -16,7 +16,22 @@
 #
 # Observe how the background counter now continues to print even while the heavy task is running.
 
+import asyncio, time
 
+async def task_A():
+    for i in range(10):
+        print("Loop is alive...")
+        await asyncio.sleep(0.5)
+
+def heavy_computation():
+    time.sleep(5)
+
+async def main():
+    # await heavy_computation()
+    # await task_A()
+    await asyncio.gather(asyncio.to_thread(heavy_computation), task_A)
+
+asyncio.run(main())
 #-------------------------------------------------
 
 # Task:
