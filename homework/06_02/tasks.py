@@ -6,7 +6,30 @@
 # В функции main запусти эту задачу, подожди 2 секунды и принудительно отмени её.
 # Убедись, что сообщение об удалении файлов появилось в консоли.
 #
-#
+import asyncio, random
+
+async def download_file():
+    try:
+        for i in range(1, 11):
+            print(f'Загружено {i*10}%...')
+            await asyncio.sleep(0.5)
+    except asyncio.CancelledError:
+        print("Удаление временных файлов...")
+        raise
+
+async def main():
+    task = asyncio.create_task(download_file())
+    await asyncio.sleep(2)
+    task.cancel()
+
+asyncio.run(main())
+# /Asia_tasks/homework/06_02/tasks.py
+# Загружено 10%...
+# Загружено 20%...
+# Загружено 30%...
+# Загружено 40%...
+# Удаление временных файлов...
+
 # 2. Задание:
 # Представь, что ты делаешь запрос к очень медленному API.
 # Напиши корутину fetch_api_data(), которая спит рандомное количество времени от 1 до 5 секунд
@@ -14,7 +37,26 @@
 # В main вызови эту функцию, установив жесткий таймаут в 3 секунды.
 # Обработай исключение asyncio.TimeoutError: если API не ответил вовремя, программа должна вывести:
 # Сервер слишком медленный, отмена операции.
-#
+
+async def fetch_api_data():
+    try: 
+        x = random.randint(1, 5)
+        await asyncio.sleep(x)
+        return f'Данные получены, Response time: {x}'
+    except asyncio.CancelledError:
+        print(f'Response time: {x}')
+        raise
+
+async def main_1():
+    try:
+        async with asyncio.timeout(3):
+            res = await (fetch_api_data())
+            print(res)
+    except TimeoutError:
+        print('Сервер слишком медленный, отмена операции')
+
+asyncio.run(main_1())
+
 # 3. Задание:
 # У тебя есть 5 курьеров (корутин), каждый из которых доставляет заказ (спит) разное
 # время: 5, 4, 3, 2 и 1 секунду соответственно.
