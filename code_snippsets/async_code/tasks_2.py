@@ -1,4 +1,4 @@
-# import asyncio
+import asyncio, time
 #
 # Task:
 #
@@ -16,7 +16,6 @@
 #
 # Observe how the background counter now continues to print even while the heavy task is running.
 
-import asyncio, time
 
 async def task_A():
     for i in range(10):
@@ -27,11 +26,14 @@ def heavy_computation():
     time.sleep(5)
 
 async def main():
-    # await heavy_computation()
-    # await task_A()
-    await asyncio.gather(asyncio.to_thread(heavy_computation), task_A)
+    # Experiment 1
+    # asyncio.create_task(task_A())
+    # heavy_computation()
+    
+    # Experiment 2
+    await asyncio.gather(asyncio.to_thread(heavy_computation), task_A())
 
-asyncio.run(main())
+# asyncio.run(main())
 #-------------------------------------------------
 
 # Task:
@@ -46,3 +48,13 @@ asyncio.run(main())
 # using asyncio.to_thread(process_file, i).
 #
 # Gather all results and print them.
+
+def process_file(file_id):
+        time.sleep(0.5)
+        return f'Result {file_id}'
+
+async def main():
+    result = await asyncio.gather(*[ asyncio.to_thread(process_file, i) for i in range(20) ])
+    print(result)
+    
+asyncio.run(main())
