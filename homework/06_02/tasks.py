@@ -6,7 +6,7 @@
 # В функции main запусти эту задачу, подожди 2 секунды и принудительно отмени её.
 # Убедись, что сообщение об удалении файлов появилось в консоли.
 #
-import asyncio, random
+import asyncio, random, time
 
 async def download_file():
     try:
@@ -111,5 +111,30 @@ async def main_4():
 # Убедись, что Привет не выводится, пока идут вычисления.
 # Исправь это: Добавь в цикл вычислений await asyncio.sleep(0) и посмотри, как изменится
 # поведение программы.
+
+# def heavy_calculation():
+#     start = time.time()
+#     while time.time() - start < 10:
+#         continue
+
+async def heavy_calculation():
+    start = time.time()
+    print('Start calculating...')
+    while time.time() - start < 10:
+        # time.sleep(1)
+        await asyncio.sleep(0)
+    print('Finish calculating...')
+
+async def say_hello():
+    for i in range(15):
+        print(f'{i}: Hello...')
+        await asyncio.sleep(1)
+
+async def main_5():
+    # heavy_calculation()
+    # task = asyncio.create_task(say_hello())
+    # await task
+    await asyncio.gather(heavy_calculation(), say_hello())
+
 if __name__ == "__main__":
-    asyncio.run(main_4())
+    asyncio.run(main_5())
