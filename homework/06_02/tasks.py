@@ -17,12 +17,11 @@ async def download_file():
         print("Удаление временных файлов...")
         raise
 
-async def main():
+async def main_0():
     task = asyncio.create_task(download_file())
     await asyncio.sleep(2)
     task.cancel()
 
-asyncio.run(main())
 # /Asia_tasks/homework/06_02/tasks.py
 # Загружено 10%...
 # Загружено 20%...
@@ -55,8 +54,6 @@ async def main_1():
     except TimeoutError:
         print('Сервер слишком медленный, отмена операции')
 
-asyncio.run(main_1())
-
 # 3. Задание:
 # У тебя есть 5 курьеров (корутин), каждый из которых доставляет заказ (спит) разное
 # время: 5, 4, 3, 2 и 1 секунду соответственно.
@@ -65,7 +62,16 @@ asyncio.run(main_1())
 # как только завершается любая из задач (не дожидаясь остальных).
 # Твой вывод в консоли должен выглядеть так: сначала прилетает заказ за 1 сек, потом за 2 сек и т.д.
 #
-#
+async def curier(timeout):
+    await asyncio.sleep(timeout)
+    return f'{timeout}: Заказ доставлен!'
+
+async def main_2():
+    tasks = [ curier(i) for i in range(5)]
+    for task in asyncio.as_completed(tasks):
+        result = await task
+        print(result)
+
 # 4. Задание:
 # Есть процесс оплаты заказа, который нельзя прерывать на середине, иначе деньги спишутся,
 # а товар не отметится как купленный.
@@ -76,7 +82,28 @@ asyncio.run(main_1())
 # Через 1 секунду после старта отмени основную задачу process_payment.
 # Результат: Программа должна выдать ошибку отмены в main, но сообщение Запись в БД завершена!
 # всё равно должно появиться в консоли.
-#
+async def save_transaction_to_db():
+    await asyncio.sleep(3)
+    return 'Запись в БД завершена!'
+
+async def process_payment(payment):
+    print('Start processing payment..')
+    await asyncio.shield(payment)
+    print('Payment processed..')
+
+async def main_4():
+    db_task = asyncio.create_task(save_transaction_to_db())
+    task = asyncio.create_task(process_payment(db_task))
+    await asyncio.sleep(1)
+    task.cancel()
+
+    try:
+        await task
+    except asyncio.CancelledError:
+        print("Process_payment task was cancelled")
+    print(await db_task)
+
+    
 # 5. Задание:
 # Создай задачу, которая делает тяжелые вычисления через while и time.time() в течение 10 секунд.
 # Попробуй запустить её и параллельно(асинхронно) запустить другую задачу, которая просто
@@ -84,3 +111,5 @@ asyncio.run(main_1())
 # Убедись, что Привет не выводится, пока идут вычисления.
 # Исправь это: Добавь в цикл вычислений await asyncio.sleep(0) и посмотри, как изменится
 # поведение программы.
+if __name__ == "__main__":
+    asyncio.run(main_4())
