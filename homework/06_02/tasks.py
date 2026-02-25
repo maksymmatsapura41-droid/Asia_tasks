@@ -21,6 +21,11 @@ async def main_0():
     task = asyncio.create_task(download_file())
     await asyncio.sleep(2)
     task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        print('[MAIN] The downloading was cancelled.')
+
 
 # /Asia_tasks/homework/06_02/tasks.py
 # Загружено 10%...
@@ -49,7 +54,7 @@ async def fetch_api_data():
 async def main_1():
     try:
         async with asyncio.timeout(3):
-            res = await (fetch_api_data())
+            res = await fetch_api_data()
             print(res)
     except TimeoutError:
         print('Сервер слишком медленный, отмена операции')
@@ -137,4 +142,4 @@ async def main_5():
     await asyncio.gather(heavy_calculation(), say_hello())
 
 if __name__ == "__main__":
-    asyncio.run(main_5())
+    asyncio.run(main_0())
