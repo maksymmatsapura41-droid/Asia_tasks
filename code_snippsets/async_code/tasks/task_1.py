@@ -12,7 +12,8 @@ async def check_url(session, url):
 
 
 async def main():
-    urls = ["https://google.com", "https://github.com", "https://python.org"]
+    urls = ["https://google.com", "https://github.com", "https://python.org", "https://non-existing-url.example"]
+    
 
     # async with aiohttp.ClientSession() as session:
     # TODO: Initialize a single ClientSession for all requests
