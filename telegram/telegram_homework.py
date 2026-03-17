@@ -25,12 +25,14 @@ import aiohttp
 import asyncio
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
+from dotenv import load_dotenv
+import os
 
-token = ''
-openweathermap_api_key = ''
+load_dotenv()
+token = os.getenv('token')
+openweathermap_api_key = os.getenv('openweathermap_api_key')
 
 my_bot = Bot(token=token)
-chat_id = 479413823
 
 my_dispatcher = Dispatcher()
 
@@ -48,15 +50,13 @@ async def process_sticker(message: types.Message, state: FSMContext):
     await message.answer("Красивый стикер! Но я понимаю только названия городов. Введи город:")
     await state.set_state(WeatherStates.waiting_for_city)
 
-# todo: support country code (uk, pl)
 async def get_weather(city):
     units = 'metric'
-    url = f'https://api.openweathermap.org/data/2.5/weather?q={city},uk&APPID={openweathermap_api_key}&units={units}'
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={openweathermap_api_key}&units={units}'
     async with aiohttp.ClientSession() as session:
         try:
             async with session.get(url) as response:
                 json_data = await response.json()
-                print('[INFO] response data: ', json_data)
                 if json_data['cod'] == '404':
                     return f'К сожалению, я не нашел такой город {city}. Попробуйте еще раз'
                 else:
@@ -68,22 +68,12 @@ async def get_weather(city):
 async def process_city(message: types.Message, state: FSMContext):
     city = message.text
     result = await get_weather(city)
-    tg_message = await message.answer(result)
-    await my_bot.send_message(chat_id, tg_message)
+    await message.answer(result)
     await state.clear()
 
 async def main():
     logging.basicConfig(level=logging.INFO)
     await my_dispatcher.start_polling(my_bot)
-    app = web.Application()
-    runner = web.AppRunner(app)
-    await runner.setup()
-    server_port = web.TCPSite(runner, '0.0.0.0', 8888)
-    await server_port.start()
-    try:
-        await asyncio.Event().wait()
-    finally:
-        await runner.cleanup()
-
+    
 if __name__=='__main__':
     asyncio.run(main())
