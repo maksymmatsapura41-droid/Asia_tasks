@@ -21,11 +21,13 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 import logging
 from aiohttp import web
+import aiohttp
 import asyncio
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
 token = ''
+openweathermap_api_key = ''
 
 my_bot = Bot(token=token)
 chat_id = 479413823
@@ -38,25 +40,37 @@ class WeatherStates(StatesGroup):
 
 @my_dispatcher.message(CommandStart())
 async def cmd_start(message: types.Message, state: FSMContext):
-    await message.answer(f'Hello {message.from_user.first_name}! Enter the city name...')
+    await message.answer(f'Привет {message.from_user.first_name}! Введи название города...')
     await state.set_state(WeatherStates.waiting_for_city)
 
-async def get_weather(request):
-    data = await request.json()
-    print(data)
-    weather = '+15'
-    await my_bot.send_message(chat_id, weather)
+@my_dispatcher.message(F.sticker)
+async def process_sticker(message: types.Message, state: FSMContext):
+    await message.answer("Красивый стикер! Но я понимаю только названия городов. Введи город:")
+    await state.set_state(WeatherStates.waiting_for_city)
+
+# todo: support country code (uk, pl)
+async def get_weather(city):
+    units = 'metric'
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={city},uk&APPID={openweathermap_api_key}&units={units}'
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url) as response:
+                json_data = await response.json()
+                print('[INFO] response data: ', json_data)
+                if json_data['cod'] == '404':
+                    return f'К сожалению, я не нашел такой город {city}. Попробуйте еще раз'
+                else:
+                    return f"В городе {city} сейчас {json_data['main']['temp']}°C {json_data['weather'][0]['description']}"
+        except Exception as e:
+            return city, str(e)
 
 @my_dispatcher.message(WeatherStates.waiting_for_city)
 async def process_city(message: types.Message, state: FSMContext):
     city = message.text
-    
-    await message.answer(f"There is a nice wather in {city}")
+    result = await get_weather(city)
+    tg_message = await message.answer(result)
+    await my_bot.send_message(chat_id, tg_message)
     await state.clear()
-
-@my_dispatcher.message(F.text)
-async def cmd_start2(message: types.Message):
-    await message.answer(f'Please repeat, {message.chat.id}')
 
 async def main():
     logging.basicConfig(level=logging.INFO)
@@ -66,7 +80,6 @@ async def main():
     await runner.setup()
     server_port = web.TCPSite(runner, '0.0.0.0', 8888)
     await server_port.start()
-
     try:
         await asyncio.Event().wait()
     finally:
