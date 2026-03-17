@@ -3,8 +3,11 @@ from aiogram.filters import CommandStart
 import logging
 from aiohttp import web
 import asyncio
+import os
+from dotenv import load_dotenv
 
-token = ''
+load_dotenv()
+token = os.getenv('token')
 
 my_bot = Bot(token=token)
 chat_id = 479413823
@@ -13,9 +16,16 @@ my_dispatcher = Dispatcher()
 
 async def github_webhook_handler(request):
     data = await request.json()
-    print(data)
-    mod_data = data['repository']['full_name']
-    await my_bot.send_message(chat_id, mod_data)
+    print(data) 
+    event = request.headers.get('X-GitHub-Event') # incoming event type
+    print('Event: ', event)
+    if event == 'workflow_run':
+        name = data['workflow_run']['name']
+        conclusion = data['workflow_run']['conclusion']
+        status = data['workflow_run']['status']
+        if conclusion:
+            await my_bot.send_message(chat_id, f'{name}: {conclusion}')
+        await my_bot.send_message(chat_id, f'{name}: {status}')
 
 @my_dispatcher.message(CommandStart())
 async def cmd_start(message: types.Message):
@@ -31,7 +41,6 @@ async def cmd_start(message: types.Message):
 
 async def main():
     logging.basicConfig(level=logging.INFO)
-    # await my_dispatcher.start_polling(my_bot)
     app = web.Application()
     app.router.add_post('/webhook/github', github_webhook_handler)
     runner = web.AppRunner(app)
