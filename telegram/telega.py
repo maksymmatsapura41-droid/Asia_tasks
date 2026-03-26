@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import ReplyKeyboardRemove
+import json
 
 load_dotenv()
 TOKEN = os.getenv('token')
@@ -54,9 +55,9 @@ async def action_start(message: types.Message):
         async with session.post(url=url, json=data, headers=headers) as answer:
             result_status = answer.status
             if result_status == 204:
-                await message.answer(f'Github action started', reply_markup=ReplyKeyboardRemove())
+                await message.answer(f'ACTION STARTED', reply_markup=ReplyKeyboardRemove())
             else:
-                await message.answer(f'Smth went wrong: {result_status}', reply_markup=ReplyKeyboardRemove())
+                await message.answer(f'ERROR: {result_status}', reply_markup=ReplyKeyboardRemove())
 
 @my_dispatcher.message(F.text.lower()=='status')
 async def action_status(message: types.Message):
@@ -69,6 +70,14 @@ async def action_status(message: types.Message):
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url, headers=headers, params=params) as answer:
             result = await answer.json()
+            # print(json.dumps(result, indent=2))
+            status_info = {}
+            runs = result['workflow_runs']
+            for run in runs:
+                status_info[run['name']] = run['conclusion']
+            print(json.dumps(status_info, indent=2))
+            await message.answer(f'ACTIONS STATUS:', reply_markup=ReplyKeyboardRemove())
+            await MY_BOT.send_message(CHAT_ID, f'{json.dumps(status_info, indent=2)}')
 
 
 # @my_dispatcher.message(F.text)
