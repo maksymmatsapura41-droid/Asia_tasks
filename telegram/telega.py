@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import ReplyKeyboardRemove
 import json
+from commands import run_command
 
 load_dotenv()
 TOKEN = os.getenv('token')
@@ -35,13 +36,17 @@ def get_keyboard():
     keyboard = ReplyKeyboardBuilder()
     keyboard.button(text='START')
     keyboard.button(text='STATUS')
+    keyboard.button(text='UPTIME')
     return keyboard.as_markup(resize_keyboard=True)
 
 @my_dispatcher.message(CommandStart())
 async def cmd_start(message: types.Message):
     await message.answer(reply_markup=get_keyboard(), text='You have typed /start')
-    # await message.answer(f'Hello human {message.from_user.full_name}, you are {message.from_user.json}')
 
+@my_dispatcher.message(F.text.lower()=='uptime')
+async def cmd_uptime(message: types.Message):
+    result = run_command('uptime')
+    await message.answer(f'{result}')
 
 @my_dispatcher.message(F.text.lower()=='start')
 async def action_start(message: types.Message):
@@ -78,14 +83,8 @@ async def action_status(message: types.Message):
             runs = result['workflow_runs']
             for run in runs:
                 status_info[run['name']] = run['conclusion']
-            print(json.dumps(status_info, indent=2))
             await message.answer(f'ACTIONS STATUS:', reply_markup=ReplyKeyboardRemove())
             await MY_BOT.send_message(CHAT_ID, f'{json.dumps(status_info, indent=2)}')
-
-
-# @my_dispatcher.message(F.text)
-# async def cmd_start(message: types.Message):
-#     await message.answer(f'Please repeat, {message.chat.id}')
 
 async def main():
     logging.basicConfig(level=logging.INFO)
