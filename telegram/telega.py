@@ -69,9 +69,12 @@ async def action_status(message: types.Message):
     params = {"per_page": 5}
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url, headers=headers, params=params) as answer:
+            answer_status = answer.status
             result = await answer.json()
             # print(json.dumps(result, indent=2))
             status_info = {}
+            if answer_status != 200:
+                await message.answer(f'ERROR: {answer_status}')
             runs = result['workflow_runs']
             for run in runs:
                 status_info[run['name']] = run['conclusion']
