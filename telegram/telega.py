@@ -1,4 +1,6 @@
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Router, Bot, Dispatcher, types, F
+from aiogram.types import Message, CallbackQuery
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters import CommandStart
 import logging
 from aiohttp import web
@@ -17,9 +19,28 @@ GITHUB_TOKEN = os.getenv('github_api_token')
 REPO_NAME = os.getenv('repo_name')
 REPO_OWNER = os.getenv('repo_owner')
 MY_BOT = Bot(token=TOKEN)
-CHAT_ID = 479413823
+CHAT_ID = os.getenv('chat_id')
 
 my_dispatcher = Dispatcher()
+router = Router()
+
+@router.message(F.text == "/manage")
+async def show_management_menu(message: Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Статус диска", callback_data="cmd_df -h /")
+    builder.button(text="Статус памяти", callback_data="cmd_free -m")
+    builder.button(text="Uptime", callback_data="cmd_uptime")
+    # adjust(1) выстраивает кнопки в один столбец (по одной в ряду)
+    builder.adjust(1) 
+    await message.answer(text='Выбери команду', reply_markup=builder.as_markup())
+
+@router.callback_query(F.data.startswith("cmd_"))
+async def handle_ssh_commands(callback: CallbackQuery):
+    command_to_run = callback.data.replace("cmd_", "")
+    await callback.message.answer(f"Выполняю команду: {command_to_run}")
+    stdout, stderr = await asyncio.to_thread(run_command, command_to_run)     
+    await callback.message.answer(f'stdout: {stdout} stderr: {stderr}')
+    await callback.answer()
 
 async def github_webhook_handler(request):
     data = await request.json()
@@ -31,6 +52,7 @@ async def github_webhook_handler(request):
         if conclusion:
             await MY_BOT.send_message(CHAT_ID, f'{name}: {conclusion}')
         await MY_BOT.send_message(CHAT_ID, f'{name}: {status}')
+    return web.Response(status=200)
 
 def get_keyboard():
     keyboard = ReplyKeyboardBuilder()
@@ -45,8 +67,8 @@ async def cmd_start(message: types.Message):
 
 @my_dispatcher.message(F.text.lower()=='uptime')
 async def cmd_uptime(message: types.Message):
-    result = run_command('uptime')
-    await message.answer(f'{result}')
+    stdout, stderr = await asyncio.to_thread(run_command, "uptime")
+    await message.answer(f'stdout: {stdout} stderr: {stderr}')
 
 @my_dispatcher.message(F.text.lower()=='start')
 async def action_start(message: types.Message):
@@ -88,18 +110,20 @@ async def action_status(message: types.Message):
 
 async def main():
     logging.basicConfig(level=logging.INFO)
+    my_dispatcher.include_router(router)
     app = web.Application()
     app.router.add_post('/webhook/github', github_webhook_handler)
     runner = web.AppRunner(app)
     await runner.setup()
     server_port = web.TCPSite(runner, '0.0.0.0', 8888)
     await server_port.start()
-    await my_dispatcher.start_polling(MY_BOT)
-
     try:
-        await asyncio.Event().wait()
+        await my_dispatcher.start_polling(MY_BOT)
     finally:
         await runner.cleanup()
 
 if __name__=='__main__':
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
