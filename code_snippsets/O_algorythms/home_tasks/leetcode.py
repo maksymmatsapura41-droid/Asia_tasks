@@ -28,7 +28,7 @@ class Solution(object):
     
 # 26. Remove Duplicates from Sorted Array
 # https://leetcode.com/problems/remove-duplicates-from-sorted-array/
-class Solution(object):
+class Solution1(object):
     def removeDuplicates(self, nums):
         """
         :type nums: List[int]
@@ -41,4 +41,6 @@ class Solution(object):
                 left += 1
                 nums[left] = nums[i]
                 k += 1
-        return k  
+        return k
+
+
