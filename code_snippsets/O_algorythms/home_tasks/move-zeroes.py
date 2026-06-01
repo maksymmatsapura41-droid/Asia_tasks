@@ -8,7 +8,7 @@ def moveZeroes(n: list[int]) -> None:
     Do not return anything, modify nums in-place instead.
     """
     left = 0
-    for i in range(len(nums)):
+    for i in range(len(n)):
         if n[i] != 0:
             n[i], n[left]  = n[left], n[i]
             left += 1
