@@ -19,3 +19,32 @@ https://leetcode.com/problems/reverse-linked-list/description/
 
 https://leetcode.com/problems/remove-linked-list-elements/description/
 """
+
+def mirror_print(n):
+    if n == 0:
+        return
+    print(n)
+    mirror_print(n - 1)
+    print(n)
+
+# mirror_print(3)
+total = 0
+def count_vowels(w):
+    if not w:
+        return 0
+    is_vowel = 1 if w[0] in 'aeiou' else 0
+    return count_vowels(w[1:]) + is_vowel
+
+# print(count_vowels("apple"))
+
+def is_palindrome(w):
+    if w[0].lower() != w[-1].lower():
+        return False
+    if len(w) <= 1:
+        return True
+    return is_palindrome(w[1:-1])
+    
+print(is_palindrome("r"))
+print(is_palindrome("radar"))
+print(is_palindrome("hello"))
+print(is_palindrome("oello"))
