@@ -1,0 +1,145 @@
+# 1. Задание:
+# Напиши корутину download_file(), которая имитирует загрузку большого файла:
+# В цикле (10 итераций) печатает «Загружено X%...» и спит 0.5 секунды через asyncio.sleep.
+# Если задачу отменяют (CancelledError), она должна успеть напечатать: "Удаление временных файлов..."
+# и только потом завершиться.
+# В функции main запусти эту задачу, подожди 2 секунды и принудительно отмени её.
+# Убедись, что сообщение об удалении файлов появилось в консоли.
+#
+import asyncio, random, time
+
+async def download_file():
+    try:
+        for i in range(1, 11):
+            print(f'Загружено {i*10}%...')
+            await asyncio.sleep(0.5)
+    except asyncio.CancelledError:
+        print("Удаление временных файлов...")
+        raise
+
+async def main_0():
+    task = asyncio.create_task(download_file())
+    await asyncio.sleep(2)
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        print('[MAIN] The downloading was cancelled.')
+
+
+# /Asia_tasks/homework/06_02/tasks.py
+# Загружено 10%...
+# Загружено 20%...
+# Загружено 30%...
+# Загружено 40%...
+# Удаление временных файлов...
+
+# 2. Задание:
+# Представь, что ты делаешь запрос к очень медленному API.
+# Напиши корутину fetch_api_data(), которая спит рандомное количество времени от 1 до 5 секунд
+# и возвращает строку «Данные получены».
+# В main вызови эту функцию, установив жесткий таймаут в 3 секунды.
+# Обработай исключение asyncio.TimeoutError: если API не ответил вовремя, программа должна вывести:
+# Сервер слишком медленный, отмена операции.
+
+async def fetch_api_data():
+    try: 
+        x = random.randint(1, 5)
+        await asyncio.sleep(x)
+        return f'Данные получены, Response time: {x}'
+    except asyncio.CancelledError:
+        print(f'Response time: {x}')
+        raise
+
+async def main_1():
+    try:
+        async with asyncio.timeout(3):
+            res = await fetch_api_data()
+            print(res)
+    except TimeoutError:
+        print('Сервер слишком медленный, отмена операции')
+
+# 3. Задание:
+# У тебя есть 5 курьеров (корутин), каждый из которых доставляет заказ (спит) разное
+# время: 5, 4, 3, 2 и 1 секунду соответственно.
+# Создай список этих задач.
+# Используй asyncio.as_completed, чтобы выводить сообщение Заказ доставлен! сразу,
+# как только завершается любая из задач (не дожидаясь остальных).
+# Твой вывод в консоли должен выглядеть так: сначала прилетает заказ за 1 сек, потом за 2 сек и т.д.
+#
+async def curier(timeout):
+    await asyncio.sleep(timeout)
+    return f'{timeout}: Заказ доставлен!'
+
+async def main_2():
+    tasks = [ curier(i) for i in range(5)]
+    for task in asyncio.as_completed(tasks):
+        result = await task
+        print(result)
+
+# 4. Задание:
+# Есть процесс оплаты заказа, который нельзя прерывать на середине, иначе деньги спишутся,
+# а товар не отметится как купленный.
+# Напиши корутину save_transaction_to_db(), которая спит 3 секунды (имитация записи в базу).
+# Напиши корутину process_payment(), которая сначала вызывает save_transaction_to_db, а потом
+# еще что-то делает.
+# В main запусти process_payment, но оберни вызов записи в базу в asyncio.shield().
+# Через 1 секунду после старта отмени основную задачу process_payment.
+# Результат: Программа должна выдать ошибку отмены в main, но сообщение Запись в БД завершена!
+# всё равно должно появиться в консоли.
+async def save_transaction_to_db():
+    await asyncio.sleep(3)
+    return 'Запись в БД завершена!'
+
+async def process_payment(payment):
+    print('Start processing payment..')
+    await asyncio.shield(payment)
+    print('Payment processed..')
+
+async def main_4():
+    db_task = asyncio.create_task(save_transaction_to_db())
+    task = asyncio.create_task(process_payment(db_task))
+    await asyncio.sleep(1)
+    task.cancel()
+
+    try:
+        await task
+    except asyncio.CancelledError:
+        print("Process_payment task was cancelled")
+    print(await db_task)
+
+    
+# 5. Задание:
+# Создай задачу, которая делает тяжелые вычисления через while и time.time() в течение 10 секунд.
+# Попробуй запустить её и параллельно(асинхронно) запустить другую задачу, которая просто
+# печатает Привет каждую секунду.
+# Убедись, что Привет не выводится, пока идут вычисления.
+# Исправь это: Добавь в цикл вычислений await asyncio.sleep(0) и посмотри, как изменится
+# поведение программы.
+
+# def heavy_calculation():
+#     start = time.time()
+#     while time.time() - start < 10:
+#         continue
+
+async def heavy_calculation():
+    start = time.time()
+    print('Start calculating...')
+    while time.time() - start < 10:
+        # time.sleep(1)
+        await asyncio.sleep(0)
+    print('Finish calculating...')
+
+async def say_hello():
+    for i in range(15):
+        print(f'{i}: Hello...')
+        await asyncio.sleep(1)
+
+async def main_5():
+    # heavy_calculation()
+    # task = asyncio.create_task(say_hello())
+    # await task
+    await asyncio.gather(heavy_calculation(), say_hello())
+
+if __name__ == "__main__":
+    asyncio.run(main_0())
