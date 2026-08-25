@@ -16,7 +16,7 @@
 """
 
 class Node:
-    def __init__(self, val):
+    def __init__(self, val = 0):
         self.val = val
         self.left = None
         self.right = None
@@ -57,10 +57,32 @@ class BinarySearchTree:
             return self.search_recursive(node.left, val)
         # if val > node.val:
         return self.search_recursive(node.right, val)
+
+    # 653 Two Sum IV - Input is a BST
+    def findTarget(self, k: int) -> bool:
+        # k - val , set() 
+        candidates = set()
+        def find_pair(current_node):
+            if not current_node:
+                return False
+            if k - current_node.val in candidates:
+                return True
+            candidates.add(current_node.val)
+            return find_pair(current_node.left) or find_pair(current_node.right)
+        
+        return find_pair(self.root)    
         
 bst = BinarySearchTree()
+bst.insert(5)
+bst.insert(3)
+bst.insert(6)
+bst.insert(2)
 bst.insert(4)
-print(bst.search(5))
+bst.insert(0)
+bst.insert(7)
+
+print(bst.findTarget(28))
+
 
 
             
