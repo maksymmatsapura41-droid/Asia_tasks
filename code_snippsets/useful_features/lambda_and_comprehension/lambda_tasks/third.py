@@ -4,3 +4,5 @@ users = [
     {"name": "Oleg", "age": 17},
     {"name": "Ivan", "age": 30}
 ]
+
+print(sorted(users, reverse=True, key=lambda x: x["age"]))
