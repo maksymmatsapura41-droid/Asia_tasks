@@ -12,7 +12,4 @@ def quick_sort(nums):
 
 arr = [7, 2, 1, 6, 8, 5, 3]
 print(quick_sort(arr))
-
-
-
     

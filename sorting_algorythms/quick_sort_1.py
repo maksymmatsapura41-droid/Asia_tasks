@@ -18,8 +18,4 @@ def quick_sort(arr, low, high):
 arr = [7, 2, 1, 6, 8, 5, 3]
 quick_sort(arr, 0, len(arr) - 1)
 print(arr)
-
-
-
-
     
