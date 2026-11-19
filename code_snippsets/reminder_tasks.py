@@ -1,3 +1,74 @@
+class Node:
+    def __init__(self, value):
+        self.next = None
+        self.value = value
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def append(self, value):
+        """Добавить элемент в конец списка"""
+        new_node = Node(value)
+        if not self.head:
+            self.head = new_node
+            return
+        current = self.head
+        while current.next:
+            current = current.next
+        current.next = new_node
+
+    def prepend(self, value):
+        """Добавить элемент в начало списка (новый head)"""
+        new_node = Node(value)
+        new_node.next = self.head
+        self.head = new_node
+
+    def delete(self, value):
+        """Удалить первое вхождение узла с указанным value"""
+        if self.head.value == value:
+            self.head = self.head.next
+            return
+        
+        current = self.head
+        while current.next and current.next.value != value:
+            current = current.next
+        if current.next:
+            current.next = current.next.next 
+
+    def find(self, value) -> bool:
+        """Вернуть True, если элемент есть в списке, иначе False"""
+        current = self.head
+        while current:
+            if current.value == value:
+                return True
+            current = current.next
+        return False
+
+    def display(self):
+        """Вывести список в формате: 1 -> 2 -> 3 -> None"""
+        values = []
+        current = self.head
+        while current:
+            values.append(str(current.value))
+            current = current.next
+        print(" -> ".join(values) + " -> None" if values else 'None')
+
+    def sum_linked_list(self, head):
+        if head is None:
+            return 0   
+        return head.value + self.sum_linked_list(head.next)
+
+if __name__ == "__main__":
+    ll = LinkedList()
+# 4 -> 2 -> 7 -> 1
+    ll.append(4)
+    ll.append(2)
+    ll.append(7)
+    ll.append(1)
+    ll.display()
+    print(ll.sum_linked_list(ll.head))
+    
 # Задание 1. Ручная трассировка Selection Sort
 # Дан массив: [29, 10, 14, 37, 13].
 #
@@ -92,19 +163,14 @@ def search_bst_buggy(root, target):
 # Задача 1. Связный список + Рекурсия
 # Условие: Напиши рекурсивную функцию sum_linked_list(head), которая
 # вычисляет сумму всех значений в связном списке.
-def sum_linked_list(head, total):
-    if head is None:
-        return total
-    total += head.val
-    sum_linked_list(head.next, total)
 
-# How to call the func
-# sum_linked_list(head, 0)
 
 # Задача 2 Дан неотсортированный связный список 4 -> 2 -> 7 -> 1. Напиши
 # функцию sort_linked_list(head), которая возвращает новый связный список с теми
 # же элементами, но отсортированными по возрастанию (1 -> 2 -> 4 -> 7).
 
+def sort_linked_list(head):
+    pass
 
 # Задача 3. Бинарное дерево поиска + Рекурсия (In-order обход)
 # Условие: Дано бинарное дерево поиска (root). Напиши рекурсивную функцию
