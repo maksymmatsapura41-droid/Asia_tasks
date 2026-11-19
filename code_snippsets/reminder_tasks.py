@@ -78,7 +78,6 @@ def print_and_return_head(head):
         current_node = current_node.next
     return head
 
-
 def search_bst_buggy(root, target):
     if root is None:
         return False
@@ -89,12 +88,18 @@ def search_bst_buggy(root, target):
     else:
         return search_bst_buggy(root.right, target)
 
-
 # Задачи
 # Задача 1. Связный список + Рекурсия
 # Условие: Напиши рекурсивную функцию sum_linked_list(head), которая
 # вычисляет сумму всех значений в связном списке.
+def sum_linked_list(head, total):
+    if head is None:
+        return total
+    total += head.val
+    sum_linked_list(head.next, total)
 
+# How to call the func
+# sum_linked_list(head, 0)
 
 # Задача 2 Дан неотсортированный связный список 4 -> 2 -> 7 -> 1. Напиши
 # функцию sort_linked_list(head), которая возвращает новый связный список с теми
