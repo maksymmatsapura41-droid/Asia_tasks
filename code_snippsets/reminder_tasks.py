@@ -54,10 +54,22 @@ class LinkedList:
             current = current.next
         print(" -> ".join(values) + " -> None" if values else 'None')
 
+# Задача 1. Связный список + Рекурсия
+# Условие: Напиши рекурсивную функцию sum_linked_list(head), которая
+# вычисляет сумму всех значений в связном списке.
+
     def sum_linked_list(self, head):
         if head is None:
             return 0   
         return head.value + self.sum_linked_list(head.next)
+
+# Задача 2 Дан неотсортированный связный список 4 -> 2 -> 7 -> 1. Напиши
+# функцию sort_linked_list(head), которая возвращает новый связный список с теми
+# же элементами, но отсортированными по возрастанию (1 -> 2 -> 4 -> 7).
+
+    def sort_linked_list(self, head):
+        pass
+
 
 if __name__ == "__main__":
     ll = LinkedList()
@@ -99,7 +111,6 @@ def count_nodes(head):
 
     return total_nodes
 
-#
 # Задание 4. Построение и поиск в BST
 # 1. Нарисуй бинарное дерево поиска, последовательно добавляя числа:
 # 10, 5, 15, 3, 7, 12.
@@ -160,17 +171,6 @@ def search_bst_buggy(root, target):
         return search_bst_buggy(root.right, target)
 
 # Задачи
-# Задача 1. Связный список + Рекурсия
-# Условие: Напиши рекурсивную функцию sum_linked_list(head), которая
-# вычисляет сумму всех значений в связном списке.
-
-
-# Задача 2 Дан неотсортированный связный список 4 -> 2 -> 7 -> 1. Напиши
-# функцию sort_linked_list(head), которая возвращает новый связный список с теми
-# же элементами, но отсортированными по возрастанию (1 -> 2 -> 4 -> 7).
-
-def sort_linked_list(head):
-    pass
 
 # Задача 3. Бинарное дерево поиска + Рекурсия (In-order обход)
 # Условие: Дано бинарное дерево поиска (root). Напиши рекурсивную функцию
