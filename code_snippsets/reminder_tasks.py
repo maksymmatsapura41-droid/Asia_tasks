@@ -68,7 +68,16 @@ class LinkedList:
 # же элементами, но отсортированными по возрастанию (1 -> 2 -> 4 -> 7).
 
     def sort_linked_list(self, head):
-        pass
+        values = []
+        current_node = head
+        while current_node:
+            values.append(current_node.value)
+            current_node = current_node.next
+        values.sort()
+        new_ll = LinkedList()
+        for value in values:
+            new_ll.append(value)
+        return new_ll
 
 # Задание 3. Подсчёт узлов в связном списке
 # Напишите функцию count_nodes(head), которая принимает голову связного списка
@@ -94,19 +103,35 @@ class LinkedList:
         if not head:
             return 0
         return self.list_length(head.next) + 1    
-    
+
+# Задача 4. Найди максимум в связном списке (итеративно).
+# Если список пуст — верни None.
+    def find_max(self, head):
+        arr_max = head.value
+        current_node = head
+        while current_node:
+            if current_node.value > arr_max:
+                arr_max = current_node.value
+            current_node = current_node.next
+        return arr_max
+
 if __name__ == "__main__":
     ll = LinkedList()
 # 4 -> 2 -> 7 -> 1
     ll.append(4)
     ll.append(2)
     ll.append(7)
+    ll.append(10)
     ll.append(1)
     ll.append(8)
     ll.display()
     print(ll.sum_linked_list(ll.head))
     print(ll.list_length(ll.head))
     print(ll.count_nodes(ll.head))
+    print(ll.find_max(ll.head))
+    ll.display()
+    sorted_ll = ll.sort_linked_list(ll.head)
+    sorted_ll.display()
     
 # Задание 1. Ручная трассировка Selection Sort
 # Дан массив: [29, 10, 14, 37, 13].
@@ -191,9 +216,6 @@ def search_bst_buggy(root, target):
 # get_sorted_elements(root), которая возвращает список всех элементов дерева в
 # строго возрастающем порядке.
 
-# Задача 4. Найди максимум в связном списке (итеративно).
-# Если список пуст — верни None.
-# def find_max(head): ...
 
 
 
