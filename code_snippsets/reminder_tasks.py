@@ -70,7 +70,31 @@ class LinkedList:
     def sort_linked_list(self, head):
         pass
 
+# Задание 3. Подсчёт узлов в связном списке
+# Напишите функцию count_nodes(head), которая принимает голову связного списка
+# head и возвращает количество элементов в нём (если список пуст, вернуть 0).
 
+    def count_nodes(self, head):
+        total_nodes = 0
+        current_node = head
+        while current_node:
+            total_nodes += 1
+            current_node = current_node.next
+        return total_nodes
+
+# Задача 5. Рекурсивно найди длину связного списка.
+# (То же, что count_nodes, но обязательно через рекурсию.)
+    def list_length(self, head, total = 0):
+        if not head:
+            return total
+        total += 1
+        return self.list_length(head.next, total) + 1
+    
+    def list_length_1(self, head):
+        if not head:
+            return 0
+        return self.list_length(head.next) + 1    
+    
 if __name__ == "__main__":
     ll = LinkedList()
 # 4 -> 2 -> 7 -> 1
@@ -78,8 +102,11 @@ if __name__ == "__main__":
     ll.append(2)
     ll.append(7)
     ll.append(1)
+    ll.append(8)
     ll.display()
     print(ll.sum_linked_list(ll.head))
+    print(ll.list_length(ll.head))
+    print(ll.count_nodes(ll.head))
     
 # Задание 1. Ручная трассировка Selection Sort
 # Дан массив: [29, 10, 14, 37, 13].
@@ -98,20 +125,7 @@ if __name__ == "__main__":
 # [9, 12]
 # [8]
 
-# Задание 3. Подсчёт узлов в связном списке
-# Напишите функцию count_nodes(head), которая принимает голову связного списка
-# head и возвращает количество элементов в нём (если список пуст, вернуть 0).
-
-def count_nodes(head):
-    total_nodes = 0
-    current_node = head
-    while current_node:
-        total_nodes += 1
-        current_node = current_node.next
-
-    return total_nodes
-
-# Задание 4. Построение и поиск в BST
+# Задание 4. Построение и поиск в BST (done in class)
 # 1. Нарисуй бинарное дерево поиска, последовательно добавляя числа:
 # 10, 5, 15, 3, 7, 12.
 # 
@@ -177,13 +191,10 @@ def search_bst_buggy(root, target):
 # get_sorted_elements(root), которая возвращает список всех элементов дерева в
 # строго возрастающем порядке.
 
-
 # Задача 4. Найди максимум в связном списке (итеративно).
 # Если список пуст — верни None.
 # def find_max(head): ...
 
 
-# Задача 5. Рекурсивно найди длину связного списка.
-# (То же, что count_nodes, но обязательно через рекурсию.)
-# def list_length(head): ...
+
 
